@@ -1,0 +1,235 @@
+/* Orion Design System Core Tokens */
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+:root {
+  --orion-primary: #02658b;
+  --orion-primary-hover: #014d6b;
+  --orion-primary-light: #e5f3f7;
+  --orion-primary-border: #bfdbfe;
+  
+  --orion-status-green: #10b981;
+  --orion-status-green-bg: #d1fae5;
+  --orion-status-green-border: #a7f3d0;
+
+  --orion-status-red: #ef4444;
+  --orion-status-red-bg: #fef2f2;
+  --orion-status-red-border: #fca5a5;
+
+  --orion-status-orange: #f59e0b;
+  --orion-status-orange-bg: #fef3c7;
+  --orion-status-orange-border: #fde68a;
+
+  --orion-status-blue: #3b82f6;
+  --orion-status-blue-bg: #eff6ff;
+  --orion-status-blue-border: #bfdbfe;
+
+  --orion-border-color: #cbd5e1;
+  --orion-border-light: #e2e8f0;
+  --orion-bg-surface: #ffffff;
+  --orion-bg-page: #f8fafc;
+  --orion-text-main: #0f172a;
+  --orion-text-secondary: #334155;
+  --orion-text-muted: #64748b;
+  --orion-radius-sm: 6px;
+  --orion-radius-md: 8px;
+  --orion-radius-lg: 12px;
+  --orion-radius-full: 9999px;
+  --orion-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.04);
+  --orion-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+  --orion-shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.15);
+}
+
+/* Badges & Status Pills */
+.orion-status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: var(--orion-radius-full);
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.orion-status-pill-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: currentColor;
+}
+
+.orion-status-pill.success {
+  background-color: var(--orion-status-green-bg);
+  color: var(--orion-status-green);
+  border: 1px solid var(--orion-status-green-border);
+}
+
+.orion-status-pill.danger {
+  background-color: var(--orion-status-red-bg);
+  color: var(--orion-status-red);
+  border: 1px solid var(--orion-status-red-border);
+}
+
+.orion-status-pill.warning {
+  background-color: var(--orion-status-orange-bg);
+  color: var(--orion-status-orange);
+  border: 1px solid var(--orion-status-orange-border);
+}
+
+.orion-status-pill.info {
+  background-color: var(--orion-status-blue-bg);
+  color: var(--orion-status-blue);
+  border: 1px solid var(--orion-status-blue-border);
+}
+
+/* Button Component Styles */
+.orion-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  font-weight: 600;
+  border-radius: var(--orion-radius-md);
+  border: 1.5px solid transparent;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+  outline: none;
+}
+
+.orion-btn-sm {
+  padding: 4px 10px;
+  font-size: 0.78rem;
+  height: 30px;
+}
+
+.orion-btn-md {
+  padding: 8px 16px;
+  font-size: 0.85rem;
+  height: 38px;
+}
+
+.orion-btn-lg {
+  padding: 10px 20px;
+  font-size: 0.95rem;
+  height: 44px;
+}
+
+.orion-btn-primary {
+  background-color: var(--orion-primary);
+  color: #ffffff;
+}
+.orion-btn-primary:hover:not(:disabled) {
+  background-color: var(--orion-primary-hover);
+}
+
+.orion-btn-secondary {
+  background-color: #f1f5f9;
+  color: #475569;
+  border-color: var(--orion-border-color);
+}
+.orion-btn-secondary:hover:not(:disabled) {
+  background-color: #e2e8f0;
+}
+
+.orion-btn-danger {
+  background-color: #9f1239;
+  color: #ffffff;
+}
+.orion-btn-danger:hover:not(:disabled) {
+  background-color: #881337;
+}
+
+.orion-btn-outline {
+  background-color: transparent;
+  border-color: var(--orion-border-color);
+  color: var(--orion-text-main);
+}
+.orion-btn-outline:hover:not(:disabled) {
+  border-color: var(--orion-primary);
+  color: var(--orion-primary);
+  background-color: var(--orion-primary-light);
+}
+
+.orion-btn-ghost {
+  background-color: transparent;
+  color: var(--orion-text-muted);
+}
+.orion-btn-ghost:hover:not(:disabled) {
+  background-color: #f1f5f9;
+  color: var(--orion-text-main);
+}
+
+.orion-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* DataGrid Component Styles */
+.orion-datagrid-container {
+  width: 100%;
+  overflow-x: auto;
+  border-radius: var(--orion-radius-md);
+  border: 1.5px solid var(--orion-border-color);
+  background: var(--orion-bg-surface);
+}
+
+.orion-datagrid {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+  text-align: left;
+}
+
+.orion-datagrid th {
+  background-color: #e5f3f7;
+  padding: 10px 14px;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--orion-text-main);
+  border-bottom: 1.5px solid var(--orion-border-color);
+  user-select: none;
+}
+
+.orion-datagrid td {
+  padding: 12px 14px;
+  border-bottom: 1px solid #f1f5f9;
+  color: var(--orion-text-secondary);
+}
+
+.orion-datagrid tr:hover td {
+  background-color: #f8fafc;
+}
+
+/* Modal Overlay & Portal */
+.orion-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(15, 23, 42, 0.5);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 1rem;
+}
+
+.orion-modal-box {
+  background: #ffffff;
+  border-radius: var(--orion-radius-lg);
+  border: 1.5px solid var(--orion-border-color);
+  box-shadow: var(--orion-shadow-lg);
+  max-width: 540px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}

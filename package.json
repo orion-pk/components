@@ -1,0 +1,66 @@
+{
+  "name": "@orion-pk/components",
+  "version": "1.0.0",
+  "description": "Shared Component Library & Design System for Orion Apps (Academy, Medicare, POS)",
+  "main": "dist/index.cjs.js",
+  "module": "dist/index.js",
+  "style": "dist/style.css",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "src",
+    "README.md"
+  ],
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs.js",
+      "default": "./dist/index.js"
+    },
+    "./dist/style.css": "./dist/style.css",
+    "./style.css": "./dist/style.css",
+    "./src/*": "./src/*",
+    "./components/*": "./src/components/*"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/orion-pk/components.git"
+  },
+  "homepage": "https://github.com/orion-pk/components#readme",
+  "bugs": {
+    "url": "https://github.com/orion-pk/components/issues"
+  },
+  "keywords": [
+    "react",
+    "orion",
+    "ui-components",
+    "design-system",
+    "academy",
+    "datagrid",
+    "pagination",
+    "forms",
+    "modals"
+  ],
+  "author": "Orion PK Team",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "peerDependencies": {
+    "lucide-react": ">=0.400.0",
+    "react": ">=18.0.0",
+    "react-dom": ">=18.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^4.3.3",
+    "lucide-react": "^0.453.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "vite": "^5.4.10"
+  }
+}
