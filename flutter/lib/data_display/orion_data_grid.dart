@@ -23,17 +23,47 @@ class OrionDataColumn<T> {
   });
 }
 
-/// Orion DataGrid widget mirroring `DataGrid.jsx`
+/// Orion DataGrid widget mirroring `DataGrid.jsx` with full styling customization.
 class OrionDataGrid<T> extends StatefulWidget {
   final List<OrionDataColumn<T>> columns;
   final List<T> data;
   final String emptyMessage;
+
+  // Custom styling overrides (falls back to Orion defaults if null)
+  final Color? backgroundColor;
+  final Color? headerBackgroundColor;
+  final TextStyle? headerTextStyle;
+  final Color? borderColor;
+  final double? borderWidth;
+  final BorderRadius? borderRadius;
+  final double? dataRowMinHeight;
+  final double? dataRowMaxHeight;
+  final double? dividerThickness;
+  final double? horizontalMargin;
+  final double? columnSpacing;
+  final Color? sortIconActiveColor;
+  final Color? sortIconInactiveColor;
+  final List<BoxShadow>? boxShadow;
 
   const OrionDataGrid({
     super.key,
     required this.columns,
     required this.data,
     this.emptyMessage = 'No records found',
+    this.backgroundColor,
+    this.headerBackgroundColor,
+    this.headerTextStyle,
+    this.borderColor,
+    this.borderWidth,
+    this.borderRadius,
+    this.dataRowMinHeight,
+    this.dataRowMaxHeight,
+    this.dividerThickness,
+    this.horizontalMargin,
+    this.columnSpacing,
+    this.sortIconActiveColor,
+    this.sortIconInactiveColor,
+    this.boxShadow,
   });
 
   @override
@@ -80,11 +110,26 @@ class _OrionDataGridState<T> extends State<OrionDataGrid<T>> {
   Widget build(BuildContext context) {
     final sortedData = _getSortedData();
 
+    final effectiveBg = widget.backgroundColor ?? OrionColors.bgSurface;
+    final effectiveHeaderBg = widget.headerBackgroundColor ?? OrionColors.primaryLight;
+    final effectiveBorderColor = widget.borderColor ?? OrionColors.borderColor;
+    final effectiveBorderWidth = widget.borderWidth ?? 1.5;
+    final effectiveRadius = widget.borderRadius ?? OrionRadius.md;
+    final effectiveHeaderTextStyle = widget.headerTextStyle ??
+        const TextStyle(
+          fontWeight: FontWeight.w700,
+          fontSize: 14,
+          color: OrionColors.textMain,
+        );
+    final effectiveActiveSortColor = widget.sortIconActiveColor ?? OrionColors.primary;
+    final effectiveInactiveSortColor = widget.sortIconInactiveColor ?? OrionColors.textSubtle;
+
     return Container(
       decoration: BoxDecoration(
-        color: OrionColors.bgSurface,
-        borderRadius: OrionRadius.md,
-        border: Border.all(color: OrionColors.borderColor, width: 1.5),
+        color: effectiveBg,
+        borderRadius: effectiveRadius,
+        border: Border.all(color: effectiveBorderColor, width: effectiveBorderWidth),
+        boxShadow: widget.boxShadow,
       ),
       clipBehavior: Clip.antiAlias,
       child: SingleChildScrollView(
@@ -92,17 +137,13 @@ class _OrionDataGridState<T> extends State<OrionDataGrid<T>> {
         child: SingleChildScrollView(
           scrollDirection: Axis.vertical,
           child: DataTable(
-            headingRowColor: WidgetStateProperty.all(OrionColors.primaryLight),
-            headingTextStyle: const TextStyle(
-              fontWeight: FontWeight.w700,
-              fontSize: 14,
-              color: OrionColors.textMain,
-            ),
-            dataRowMinHeight: 48,
-            dataRowMaxHeight: 52,
-            dividerThickness: 1,
-            horizontalMargin: 16,
-            columnSpacing: 24,
+            headingRowColor: WidgetStateProperty.all(effectiveHeaderBg),
+            headingTextStyle: effectiveHeaderTextStyle,
+            dataRowMinHeight: widget.dataRowMinHeight ?? 48,
+            dataRowMaxHeight: widget.dataRowMaxHeight ?? 52,
+            dividerThickness: widget.dividerThickness ?? 1,
+            horizontalMargin: widget.horizontalMargin ?? 16,
+            columnSpacing: widget.columnSpacing ?? 24,
             columns: List.generate(widget.columns.length, (idx) {
               final col = widget.columns[idx];
               final isSorted = _sortColIndex == idx;
@@ -123,7 +164,9 @@ class _OrionDataGridState<T> extends State<OrionDataGrid<T>> {
                                   : Icons.arrow_downward)
                               : Icons.unfold_more,
                           size: 14,
-                          color: isSorted ? OrionColors.primary : OrionColors.textSubtle,
+                          color: isSorted
+                              ? effectiveActiveSortColor
+                              : effectiveInactiveSortColor,
                         ),
                       ],
                     ],

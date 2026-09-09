@@ -2,13 +2,25 @@ import 'package:flutter/material.dart';
 import '../theme/orion_theme.dart';
 import 'orion_update_dialog.dart';
 
-/// Orion Version Badge mirroring `VersionBadge.jsx`
+/// Orion Version Badge mirroring `VersionBadge.jsx` with full customization support.
 class OrionVersionBadge extends StatelessWidget {
   final String currentVersion;
   final bool hasUpdate;
   final String latestVersion;
   final List<String> releaseNotes;
   final VoidCallback? onUpdateDownload;
+
+  // Custom styling overrides (falls back to Orion defaults if null)
+  final Color? backgroundColor;
+  final Color? textColor;
+  final Color? borderColor;
+  final double? borderWidth;
+  final BorderRadius? borderRadius;
+  final EdgeInsetsGeometry? padding;
+  final TextStyle? textStyle;
+  final IconData? icon;
+  final double? iconSize;
+  final Color? dotColor;
 
   const OrionVersionBadge({
     super.key,
@@ -17,13 +29,33 @@ class OrionVersionBadge extends StatelessWidget {
     this.latestVersion = 'v2.4.1',
     this.releaseNotes = const [],
     this.onUpdateDownload,
+    this.backgroundColor,
+    this.textColor,
+    this.borderColor,
+    this.borderWidth,
+    this.borderRadius,
+    this.padding,
+    this.textStyle,
+    this.icon,
+    this.iconSize,
+    this.dotColor,
   });
 
   @override
   Widget build(BuildContext context) {
-    final bgColor = hasUpdate ? OrionColors.statusOrangeBg : OrionColors.primaryLight;
-    final textColor = hasUpdate ? const Color(0xFFB45309) : OrionColors.primary;
-    final borderColor = hasUpdate ? OrionColors.statusOrangeBorder : OrionColors.primaryBorder;
+    final defaultBgColor = hasUpdate ? OrionColors.statusOrangeBg : OrionColors.primaryLight;
+    final defaultTextColor = hasUpdate ? const Color(0xFFB45309) : OrionColors.primary;
+    final defaultBorderColor = hasUpdate ? OrionColors.statusOrangeBorder : OrionColors.primaryBorder;
+
+    final effectiveBg = backgroundColor ?? defaultBgColor;
+    final effectiveText = textColor ?? defaultTextColor;
+    final effectiveBorder = borderColor ?? defaultBorderColor;
+    final effectiveWidth = borderWidth ?? 1.5;
+    final effectiveRadius = borderRadius ?? OrionRadius.full;
+    final effectivePadding = padding ?? const EdgeInsets.symmetric(horizontal: 9, vertical: 3);
+    final effectiveIcon = icon ?? (hasUpdate ? Icons.arrow_circle_up : Icons.refresh);
+    final effectiveIconSize = iconSize ?? 13.0;
+    final effectiveDotColor = dotColor ?? const Color(0xFFB45309);
 
     return InkWell(
       onTap: () {
@@ -36,38 +68,39 @@ class OrionVersionBadge extends StatelessWidget {
           onUpdateDownload: onUpdateDownload,
         );
       },
-      borderRadius: OrionRadius.full,
+      borderRadius: effectiveRadius,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 3),
+        padding: effectivePadding,
         decoration: BoxDecoration(
-          color: bgColor,
-          borderRadius: OrionRadius.full,
-          border: Border.all(color: borderColor, width: 1.5),
+          color: effectiveBg,
+          borderRadius: effectiveRadius,
+          border: Border.all(color: effectiveBorder, width: effectiveWidth),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(
-              hasUpdate ? Icons.arrow_circle_up : Icons.refresh,
-              size: 13,
-              color: textColor,
+              effectiveIcon,
+              size: effectiveIconSize,
+              color: effectiveText,
             ),
             const SizedBox(width: 5),
             Text(
               currentVersion,
-              style: TextStyle(
-                fontSize: 11.5,
-                fontWeight: FontWeight.w700,
-                color: textColor,
-              ),
+              style: textStyle ??
+                  TextStyle(
+                    fontSize: 11.5,
+                    fontWeight: FontWeight.w700,
+                    color: effectiveText,
+                  ),
             ),
             if (hasUpdate) ...[
               const SizedBox(width: 5),
               Container(
                 width: 6,
                 height: 6,
-                decoration: const BoxDecoration(
-                  color: Color(0xFFB45309),
+                decoration: BoxDecoration(
+                  color: effectiveDotColor,
                   shape: BoxShape.circle,
                 ),
               ),

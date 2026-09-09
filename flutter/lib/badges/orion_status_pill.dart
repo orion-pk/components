@@ -8,12 +8,21 @@ enum OrionStatusType {
   info,
 }
 
-/// Orion Status Pill widget mirroring `StatusPill.jsx`
+/// Orion Status Pill widget mirroring `StatusPill.jsx` with full styling customization.
 class OrionStatusPill extends StatelessWidget {
   final String status;
   final String? label;
   final EdgeInsetsGeometry? padding;
   final TextStyle? textStyle;
+
+  // Custom styling overrides (falls back to Orion status colors if null)
+  final Color? backgroundColor;
+  final Color? textColor;
+  final Color? borderColor;
+  final double? borderWidth;
+  final BorderRadius? borderRadius;
+  final Color? dotColor;
+  final bool showDot;
 
   const OrionStatusPill({
     super.key,
@@ -21,6 +30,13 @@ class OrionStatusPill extends StatelessWidget {
     this.label,
     this.padding,
     this.textStyle,
+    this.backgroundColor,
+    this.textColor,
+    this.borderColor,
+    this.borderWidth,
+    this.borderRadius,
+    this.dotColor,
+    this.showDot = true,
   });
 
   static (String text, OrionStatusType type) _resolveConfig(String status, String? label) {
@@ -73,57 +89,65 @@ class OrionStatusPill extends StatelessWidget {
   Widget build(BuildContext context) {
     final (displayText, type) = _resolveConfig(status, label);
 
-    Color textColor;
-    Color bgColor;
-    Color borderColor;
+    Color defaultTextColor;
+    Color defaultBgColor;
+    Color defaultBorderColor;
 
     switch (type) {
       case OrionStatusType.success:
-        textColor = OrionColors.statusGreen;
-        bgColor = OrionColors.statusGreenBg;
-        borderColor = OrionColors.statusGreenBorder;
+        defaultTextColor = OrionColors.statusGreen;
+        defaultBgColor = OrionColors.statusGreenBg;
+        defaultBorderColor = OrionColors.statusGreenBorder;
         break;
       case OrionStatusType.warning:
-        textColor = OrionColors.statusOrange;
-        bgColor = OrionColors.statusOrangeBg;
-        borderColor = OrionColors.statusOrangeBorder;
+        defaultTextColor = OrionColors.statusOrange;
+        defaultBgColor = OrionColors.statusOrangeBg;
+        defaultBorderColor = OrionColors.statusOrangeBorder;
         break;
       case OrionStatusType.danger:
-        textColor = OrionColors.statusRed;
-        bgColor = OrionColors.statusRedBg;
-        borderColor = OrionColors.statusRedBorder;
+        defaultTextColor = OrionColors.statusRed;
+        defaultBgColor = OrionColors.statusRedBg;
+        defaultBorderColor = OrionColors.statusRedBorder;
         break;
       case OrionStatusType.info:
-        textColor = OrionColors.statusBlue;
-        bgColor = OrionColors.statusBlueBg;
-        borderColor = OrionColors.statusBlueBorder;
+        defaultTextColor = OrionColors.statusBlue;
+        defaultBgColor = OrionColors.statusBlueBg;
+        defaultBorderColor = OrionColors.statusBlueBorder;
         break;
     }
+
+    final effectiveTextColor = textColor ?? defaultTextColor;
+    final effectiveBgColor = backgroundColor ?? defaultBgColor;
+    final effectiveBorderColor = borderColor ?? defaultBorderColor;
+    final effectiveBorderWidth = borderWidth ?? 1.0;
+    final effectiveRadius = borderRadius ?? OrionRadius.full;
+    final effectiveDotColor = dotColor ?? effectiveTextColor;
 
     return Container(
       padding: padding ?? const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
-        color: bgColor,
-        borderRadius: OrionRadius.full,
-        border: Border.all(color: borderColor, width: 1),
+        color: effectiveBgColor,
+        borderRadius: effectiveRadius,
+        border: Border.all(color: effectiveBorderColor, width: effectiveBorderWidth),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Container(
-            width: 6,
-            height: 6,
-            margin: const EdgeInsets.only(right: 6),
-            decoration: BoxDecoration(
-              color: textColor,
-              shape: BoxShape.circle,
+          if (showDot)
+            Container(
+              width: 6,
+              height: 6,
+              margin: const EdgeInsets.only(right: 6),
+              decoration: BoxDecoration(
+                color: effectiveDotColor,
+                shape: BoxShape.circle,
+              ),
             ),
-          ),
           Text(
             displayText,
             style: textStyle ??
                 TextStyle(
-                  color: textColor,
+                  color: effectiveTextColor,
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
                   height: 1.0,
