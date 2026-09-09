@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import '../theme/orion_theme.dart';
 
 /// Global Permissions Badge widget mirroring `GlobalPermissionsBadge.jsx`

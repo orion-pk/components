@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import '../theme/orion_theme.dart';
 
 /// Orion Update Progress Bar mirroring `UpdateProgressBar.jsx`

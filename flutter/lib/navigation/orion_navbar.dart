@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import '../theme/orion_theme.dart';
 import 'orion_version_badge.dart';
 import 'orion_profile_dropdown.dart';

@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'orion_status_pill.dart';
 
 /// Orion Severity Pill widget mirroring `SeverityPill.jsx`

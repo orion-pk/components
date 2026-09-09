@@ -1,4 +1,4 @@
-﻿library orion_components;
+library orion_components;
 
 // Theme & Tokens
 export 'theme/orion_theme.dart';
