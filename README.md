@@ -9,19 +9,29 @@
 
 ## 📦 Installation
 
-### Option 1: Install directly from GitHub
+### Web (React)
 ```bash
+# Option 1: Install directly from GitHub
 npm install github:orion-pk/components
-```
 
-### Option 2: Install via npm
-```bash
+# Option 2: Install via npm
 npm install @orion-pk/components
 ```
 
-### Option 3: Install a specific release tag
-```bash
-npm install github:orion-pk/components#v1.0.0
+### Mobile & Multiplatform (Flutter)
+Add to your Flutter app's `pubspec.yaml`:
+```yaml
+dependencies:
+  orion_components:
+    git:
+      url: https://github.com/orion-pk/components.git
+      path: flutter
+      ref: main
+```
+
+Then import in Dart:
+```dart
+import 'package:orion_components/orion_components.dart';
 ```
 
 ---

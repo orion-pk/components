@@ -1,0 +1,21 @@
+﻿name: orion_components
+description: Shared UI Component Library & Design System for Orion Flutter Apps (Academy, Medicare, POS, Naaply).
+version: 1.0.0
+homepage: https://github.com/orion-pk/components
+repository: https://github.com/orion-pk/components
+issue_tracker: https://github.com/orion-pk/components/issues
+
+environment:
+  sdk: ">=3.0.0 <4.0.0"
+  flutter: ">=3.10.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+
+flutter:
