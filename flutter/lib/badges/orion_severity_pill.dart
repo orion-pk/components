@@ -1,17 +1,33 @@
 import 'package:flutter/material.dart';
 import 'orion_status_pill.dart';
 
-/// Orion Severity Pill widget mirroring `SeverityPill.jsx`
+/// Orion Severity Pill widget mirroring `SeverityPill.jsx` with full customization support.
 class OrionSeverityPill extends StatelessWidget {
   final String severity;
   final String? label;
   final EdgeInsetsGeometry? padding;
+  final TextStyle? textStyle;
+  final Color? backgroundColor;
+  final Color? textColor;
+  final Color? borderColor;
+  final double? borderWidth;
+  final BorderRadius? borderRadius;
+  final Color? dotColor;
+  final bool showDot;
 
   const OrionSeverityPill({
     super.key,
     this.severity = 'minor',
     this.label,
     this.padding,
+    this.textStyle,
+    this.backgroundColor,
+    this.textColor,
+    this.borderColor,
+    this.borderWidth,
+    this.borderRadius,
+    this.dotColor,
+    this.showDot = true,
   });
 
   static (String text, String mappedStatus) _resolve(String severity, String? label) {
@@ -43,6 +59,14 @@ class OrionSeverityPill extends StatelessWidget {
       status: mappedStatus,
       label: displayText,
       padding: padding,
+      textStyle: textStyle,
+      backgroundColor: backgroundColor,
+      textColor: textColor,
+      borderColor: borderColor,
+      borderWidth: borderWidth,
+      borderRadius: borderRadius,
+      dotColor: dotColor,
+      showDot: showDot,
     );
   }
 }

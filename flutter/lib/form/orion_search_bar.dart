@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../theme/orion_theme.dart';
 
-/// Orion Search Bar mirroring `SearchBar.jsx`
+/// Orion Search Bar mirroring `SearchBar.jsx` with full customization support.
 class OrionSearchBar extends StatefulWidget {
   final String value;
   final ValueChanged<String>? onChange;
@@ -10,6 +10,16 @@ class OrionSearchBar extends StatefulWidget {
   final bool showFilterToggle;
   final VoidCallback? onFilterToggle;
   final bool filterActive;
+
+  // Custom styling overrides (falls back to Orion defaults if null)
+  final Color? backgroundColor;
+  final Color? borderColor;
+  final double? borderWidth;
+  final BorderRadius? borderRadius;
+  final double? height;
+  final TextStyle? textStyle;
+  final TextStyle? hintStyle;
+  final Color? iconColor;
 
   const OrionSearchBar({
     super.key,
@@ -20,6 +30,14 @@ class OrionSearchBar extends StatefulWidget {
     this.showFilterToggle = false,
     this.onFilterToggle,
     this.filterActive = false,
+    this.backgroundColor,
+    this.borderColor,
+    this.borderWidth,
+    this.borderRadius,
+    this.height,
+    this.textStyle,
+    this.hintStyle,
+    this.iconColor,
   });
 
   @override
@@ -51,35 +69,44 @@ class _OrionSearchBarState extends State<OrionSearchBar> {
 
   @override
   Widget build(BuildContext context) {
+    final effectiveBg = widget.backgroundColor ?? Colors.white;
+    final effectiveBorderColor = widget.borderColor ?? OrionColors.borderColor;
+    final effectiveBorderWidth = widget.borderWidth ?? 1.5;
+    final effectiveRadius = widget.borderRadius ?? OrionRadius.md;
+    final effectiveHeight = widget.height ?? 38.0;
+    final effectiveIconColor = widget.iconColor ?? OrionColors.textMuted;
+
     return Container(
-      height: 38,
+      height: effectiveHeight,
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: OrionRadius.md,
-        border: Border.all(color: OrionColors.borderColor, width: 1.5),
+        color: effectiveBg,
+        borderRadius: effectiveRadius,
+        border: Border.all(color: effectiveBorderColor, width: effectiveBorderWidth),
       ),
       alignment: Alignment.center,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          const Padding(
-            padding: EdgeInsets.only(left: 10, right: 8),
-            child: Icon(Icons.search, size: 18, color: OrionColors.textMuted),
+          Padding(
+            padding: const EdgeInsets.only(left: 10, right: 8),
+            child: Icon(Icons.search, size: 18, color: effectiveIconColor),
           ),
           Expanded(
             child: TextField(
               controller: _controller,
               onChanged: widget.onChange,
-              style: const TextStyle(
-                fontSize: 13.5,
-                color: OrionColors.textMain,
-              ),
+              style: widget.textStyle ??
+                  const TextStyle(
+                    fontSize: 13.5,
+                    color: OrionColors.textMain,
+                  ),
               decoration: InputDecoration(
                 hintText: widget.placeholder,
-                hintStyle: const TextStyle(
-                  fontSize: 13.5,
-                  color: OrionColors.textSubtle,
-                ),
+                hintStyle: widget.hintStyle ??
+                    const TextStyle(
+                      fontSize: 13.5,
+                      color: OrionColors.textSubtle,
+                    ),
                 border: InputBorder.none,
                 isDense: true,
                 contentPadding: const EdgeInsets.symmetric(vertical: 8),

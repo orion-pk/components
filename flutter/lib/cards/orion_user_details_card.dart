@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../theme/orion_theme.dart';
 
-/// Orion User Details Card widget mirroring `UserDetailsCard.jsx`
+/// Orion User Details Card widget mirroring `UserDetailsCard.jsx` with full customization support.
 class OrionUserDetailsCard extends StatelessWidget {
   final String name;
   final String email;
@@ -12,6 +12,19 @@ class OrionUserDetailsCard extends StatelessWidget {
   final VoidCallback? onDelete;
   final VoidCallback? onCopyInvite;
   final EdgeInsetsGeometry? padding;
+
+  // Custom styling overrides (falls back to Orion defaults if null)
+  final Color? backgroundColor;
+  final Color? borderColor;
+  final double? borderWidth;
+  final BorderRadius? borderRadius;
+  final Color? avatarColor;
+  final Color? avatarTextColor;
+  final TextStyle? nameStyle;
+  final TextStyle? emailStyle;
+  final Color? roleBadgeColor;
+  final Color? roleTextColor;
+  final List<BoxShadow>? boxShadow;
 
   const OrionUserDetailsCard({
     super.key,
@@ -24,6 +37,17 @@ class OrionUserDetailsCard extends StatelessWidget {
     this.onDelete,
     this.onCopyInvite,
     this.padding,
+    this.backgroundColor,
+    this.borderColor,
+    this.borderWidth,
+    this.borderRadius,
+    this.avatarColor,
+    this.avatarTextColor,
+    this.nameStyle,
+    this.emailStyle,
+    this.roleBadgeColor,
+    this.roleTextColor,
+    this.boxShadow,
   });
 
   @override
@@ -32,19 +56,27 @@ class OrionUserDetailsCard extends StatelessWidget {
         ? name.trim().substring(0, name.trim().length >= 2 ? 2 : 1).toUpperCase()
         : 'U';
 
+    final effectiveRadius = borderRadius ?? BorderRadius.circular(10);
+    final effectiveBg = backgroundColor ?? OrionColors.bgSurface;
+    final effectiveBorderColor = borderColor ?? OrionColors.borderColor;
+    final effectiveBorderWidth = borderWidth ?? 1.5;
+    final effectiveAvatarBg = avatarColor ?? OrionColors.primary;
+    final effectiveAvatarTextColor = avatarTextColor ?? Colors.white;
+
     return Container(
       padding: padding ?? const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: OrionColors.bgSurface,
-        border: Border.all(color: OrionColors.borderColor, width: 1.5),
-        borderRadius: BorderRadius.circular(10),
-        boxShadow: const [
-          BoxShadow(
-            color: Color.fromRGBO(0, 0, 0, 0.03),
-            offset: Offset(0, 1),
-            blurRadius: 3,
-          ),
-        ],
+        color: effectiveBg,
+        border: Border.all(color: effectiveBorderColor, width: effectiveBorderWidth),
+        borderRadius: effectiveRadius,
+        boxShadow: boxShadow ??
+            const [
+              BoxShadow(
+                color: Color.fromRGBO(0, 0, 0, 0.03),
+                offset: Offset(0, 1),
+                blurRadius: 3,
+              ),
+            ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -56,15 +88,15 @@ class OrionUserDetailsCard extends StatelessWidget {
               Container(
                 width: 46,
                 height: 46,
-                decoration: const BoxDecoration(
-                  color: OrionColors.primary,
+                decoration: BoxDecoration(
+                  color: effectiveAvatarBg,
                   shape: BoxShape.circle,
                 ),
                 alignment: Alignment.center,
                 child: Text(
                   initials,
-                  style: const TextStyle(
-                    color: Colors.white,
+                  style: TextStyle(
+                    color: effectiveAvatarTextColor,
                     fontWeight: FontWeight.w800,
                     fontSize: 16,
                   ),
@@ -77,11 +109,12 @@ class OrionUserDetailsCard extends StatelessWidget {
                   children: [
                     Text(
                       name,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.w700,
-                        fontSize: 15,
-                        color: OrionColors.textMain,
-                      ),
+                      style: nameStyle ??
+                          const TextStyle(
+                            fontWeight: FontWeight.w700,
+                            fontSize: 15,
+                            color: OrionColors.textMain,
+                          ),
                     ),
                     const SizedBox(height: 2),
                     Wrap(
@@ -91,22 +124,23 @@ class OrionUserDetailsCard extends StatelessWidget {
                       children: [
                         Text(
                           email,
-                          style: const TextStyle(
-                            fontSize: 13,
-                            color: OrionColors.textMuted,
-                          ),
+                          style: emailStyle ??
+                              const TextStyle(
+                                fontSize: 13,
+                                color: OrionColors.textMuted,
+                              ),
                         ),
                         const Text('•', style: TextStyle(color: OrionColors.textMuted)),
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                           decoration: BoxDecoration(
-                            color: OrionColors.primaryLight,
+                            color: roleBadgeColor ?? OrionColors.primaryLight,
                             borderRadius: BorderRadius.circular(4),
                           ),
                           child: Text(
                             role,
-                            style: const TextStyle(
-                              color: OrionColors.primary,
+                            style: TextStyle(
+                              color: roleTextColor ?? OrionColors.primary,
                               fontWeight: FontWeight.w700,
                               fontSize: 12,
                             ),

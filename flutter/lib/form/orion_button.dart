@@ -16,7 +16,7 @@ enum OrionButtonSize {
   lg,
 }
 
-/// Orion Button widget mirroring `Button.jsx`
+/// Orion Button widget mirroring `Button.jsx` with full customization support.
 class OrionButton extends StatelessWidget {
   final String? label;
   final Widget? child;
@@ -28,6 +28,15 @@ class OrionButton extends StatelessWidget {
   final Widget? iconRight;
   final VoidCallback? onPressed;
   final double? width;
+
+  // Custom styling overrides (falls back to Orion variant defaults if null)
+  final Color? backgroundColor;
+  final Color? textColor;
+  final Color? borderColor;
+  final BorderRadius? borderRadius;
+  final EdgeInsetsGeometry? padding;
+  final double? height;
+  final TextStyle? textStyle;
 
   const OrionButton({
     super.key,
@@ -41,65 +50,82 @@ class OrionButton extends StatelessWidget {
     this.iconRight,
     this.onPressed,
     this.width,
+    this.backgroundColor,
+    this.textColor,
+    this.borderColor,
+    this.borderRadius,
+    this.padding,
+    this.height,
+    this.textStyle,
   });
 
   @override
   Widget build(BuildContext context) {
     final isActuallyDisabled = disabled || isLoading || onPressed == null;
 
-    double height;
-    double fontSize;
-    EdgeInsetsGeometry padding;
+    double defaultHeight;
+    double defaultFontSize;
+    EdgeInsetsGeometry defaultPadding;
     double loaderSize;
 
     switch (size) {
       case OrionButtonSize.sm:
-        height = 30;
-        fontSize = 12;
-        padding = const EdgeInsets.symmetric(horizontal: 10, vertical: 4);
+        defaultHeight = 30;
+        defaultFontSize = 12;
+        defaultPadding = const EdgeInsets.symmetric(horizontal: 10, vertical: 4);
         loaderSize = 12;
         break;
       case OrionButtonSize.md:
-        height = 38;
-        fontSize = 13.5;
-        padding = const EdgeInsets.symmetric(horizontal: 16, vertical: 8);
+        defaultHeight = 38;
+        defaultFontSize = 13.5;
+        defaultPadding = const EdgeInsets.symmetric(horizontal: 16, vertical: 8);
         loaderSize = 14;
         break;
       case OrionButtonSize.lg:
-        height = 44;
-        fontSize = 15;
-        padding = const EdgeInsets.symmetric(horizontal: 20, vertical: 10);
+        defaultHeight = 44;
+        defaultFontSize = 15;
+        defaultPadding = const EdgeInsets.symmetric(horizontal: 20, vertical: 10);
         loaderSize = 18;
         break;
     }
 
-    Color bgColor;
-    Color textColor;
+    Color defaultBgColor;
+    Color defaultTextColor;
     BorderSide borderSide = BorderSide.none;
 
     switch (variant) {
       case OrionButtonVariant.primary:
-        bgColor = OrionColors.primary;
-        textColor = Colors.white;
+        defaultBgColor = OrionColors.primary;
+        defaultTextColor = Colors.white;
         break;
       case OrionButtonVariant.secondary:
-        bgColor = OrionColors.secondaryBg;
-        textColor = const Color(0xFF475569);
+        defaultBgColor = OrionColors.secondaryBg;
+        defaultTextColor = const Color(0xFF475569);
         borderSide = const BorderSide(color: OrionColors.borderColor, width: 1.5);
         break;
       case OrionButtonVariant.danger:
-        bgColor = OrionColors.danger;
-        textColor = Colors.white;
+        defaultBgColor = OrionColors.danger;
+        defaultTextColor = Colors.white;
         break;
       case OrionButtonVariant.outline:
-        bgColor = Colors.transparent;
-        textColor = OrionColors.textMain;
+        defaultBgColor = Colors.transparent;
+        defaultTextColor = OrionColors.textMain;
         borderSide = const BorderSide(color: OrionColors.borderColor, width: 1.5);
         break;
       case OrionButtonVariant.ghost:
-        bgColor = Colors.transparent;
-        textColor = OrionColors.textMuted;
+        defaultBgColor = Colors.transparent;
+        defaultTextColor = OrionColors.textMuted;
         break;
+    }
+
+    final effectiveBg = backgroundColor ?? defaultBgColor;
+    final effectiveTextColor = textColor ?? defaultTextColor;
+    final effectiveHeight = height ?? defaultHeight;
+    final effectivePadding = padding ?? defaultPadding;
+    final effectiveRadius = borderRadius ?? OrionRadius.md;
+
+    if (borderColor != null) {
+      borderSide = BorderSide(color: borderColor!, width: 1.5);
     }
 
     final loaderColor = (variant == OrionButtonVariant.primary || variant == OrionButtonVariant.danger)
@@ -115,7 +141,7 @@ class OrionButton extends StatelessWidget {
           const SizedBox(width: 6),
         ] else if (iconLeft != null) ...[
           IconTheme(
-            data: IconThemeData(color: textColor, size: fontSize + 2),
+            data: IconThemeData(color: effectiveTextColor, size: defaultFontSize + 2),
             child: iconLeft!,
           ),
           const SizedBox(width: 6),
@@ -123,17 +149,18 @@ class OrionButton extends StatelessWidget {
         child ??
             Text(
               label ?? '',
-              style: TextStyle(
-                color: textColor,
-                fontSize: fontSize,
-                fontWeight: FontWeight.w600,
-                height: 1.1,
-              ),
+              style: textStyle ??
+                  TextStyle(
+                    color: effectiveTextColor,
+                    fontSize: defaultFontSize,
+                    fontWeight: FontWeight.w600,
+                    height: 1.1,
+                  ),
             ),
         if (!isLoading && iconRight != null) ...[
           const SizedBox(width: 6),
           IconTheme(
-            data: IconThemeData(color: textColor, size: fontSize + 2),
+            data: IconThemeData(color: effectiveTextColor, size: defaultFontSize + 2),
             child: iconRight!,
           ),
         ],
@@ -144,17 +171,17 @@ class OrionButton extends StatelessWidget {
       duration: const Duration(milliseconds: 150),
       opacity: isActuallyDisabled ? 0.55 : 1.0,
       child: Material(
-        color: bgColor,
-        borderRadius: OrionRadius.md,
+        color: effectiveBg,
+        borderRadius: effectiveRadius,
         child: InkWell(
           onTap: isActuallyDisabled ? null : onPressed,
-          borderRadius: OrionRadius.md,
+          borderRadius: effectiveRadius,
           child: Container(
             width: width,
-            height: height,
-            padding: padding,
+            height: effectiveHeight,
+            padding: effectivePadding,
             decoration: BoxDecoration(
-              borderRadius: OrionRadius.md,
+              borderRadius: effectiveRadius,
               border: borderSide == BorderSide.none ? null : Border.fromBorderSide(borderSide),
             ),
             alignment: Alignment.center,

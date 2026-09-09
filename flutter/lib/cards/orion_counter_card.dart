@@ -1,13 +1,24 @@
 import 'package:flutter/material.dart';
 import '../theme/orion_theme.dart';
 
-/// Orion Counter Card widget mirroring `CounterCard.jsx`
+/// Orion Counter Card widget mirroring `CounterCard.jsx` with full customization support.
 class OrionCounterCard extends StatelessWidget {
   final String label;
   final dynamic count;
   final Widget? icon;
   final VoidCallback? onClick;
   final EdgeInsetsGeometry? padding;
+
+  // Custom styling overrides (falls back to Orion defaults if null)
+  final Color? backgroundColor;
+  final Color? borderColor;
+  final double? borderWidth;
+  final BorderRadius? borderRadius;
+  final TextStyle? countStyle;
+  final TextStyle? labelStyle;
+  final List<BoxShadow>? boxShadow;
+  final Color? iconBackgroundColor;
+  final Color? iconColor;
 
   const OrionCounterCard({
     super.key,
@@ -16,26 +27,41 @@ class OrionCounterCard extends StatelessWidget {
     this.icon,
     this.onClick,
     this.padding,
+    this.backgroundColor,
+    this.borderColor,
+    this.borderWidth,
+    this.borderRadius,
+    this.countStyle,
+    this.labelStyle,
+    this.boxShadow,
+    this.iconBackgroundColor,
+    this.iconColor,
   });
 
   @override
   Widget build(BuildContext context) {
+    final effectiveRadius = borderRadius ?? OrionRadius.md;
+    final effectiveBg = backgroundColor ?? OrionColors.bgSurface;
+    final effectiveBorderColor = borderColor ?? OrionColors.borderColor;
+    final effectiveBorderWidth = borderWidth ?? 1.5;
+
     return InkWell(
       onTap: onClick,
-      borderRadius: OrionRadius.md,
+      borderRadius: effectiveRadius,
       child: Container(
         padding: padding ?? const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
         decoration: BoxDecoration(
-          color: OrionColors.bgSurface,
-          border: Border.all(color: OrionColors.borderColor, width: 1.5),
-          borderRadius: OrionRadius.md,
-          boxShadow: const [
-            BoxShadow(
-              color: Color.fromRGBO(0, 0, 0, 0.02),
-              offset: Offset(0, 1),
-              blurRadius: 3,
-            ),
-          ],
+          color: effectiveBg,
+          border: Border.all(color: effectiveBorderColor, width: effectiveBorderWidth),
+          borderRadius: effectiveRadius,
+          boxShadow: boxShadow ??
+              const [
+                BoxShadow(
+                  color: Color.fromRGBO(0, 0, 0, 0.02),
+                  offset: Offset(0, 1),
+                  blurRadius: 3,
+                ),
+              ],
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -44,12 +70,12 @@ class OrionCounterCard extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: OrionColors.primaryLight,
-                  borderRadius: OrionRadius.md,
+                  color: iconBackgroundColor ?? OrionColors.primaryLight,
+                  borderRadius: effectiveRadius,
                 ),
                 child: IconTheme(
-                  data: const IconThemeData(
-                    color: OrionColors.primary,
+                  data: IconThemeData(
+                    color: iconColor ?? OrionColors.primary,
                     size: 20,
                   ),
                   child: icon!,
@@ -63,20 +89,22 @@ class OrionCounterCard extends StatelessWidget {
               children: [
                 Text(
                   '$count',
-                  style: const TextStyle(
-                    fontSize: 21,
-                    fontWeight: FontWeight.w800,
-                    color: OrionColors.textMain,
-                    height: 1.1,
-                  ),
+                  style: countStyle ??
+                      const TextStyle(
+                        fontSize: 21,
+                        fontWeight: FontWeight.w800,
+                        color: OrionColors.textMain,
+                        height: 1.1,
+                      ),
                 ),
                 Text(
                   label,
-                  style: const TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    color: OrionColors.textMuted,
-                  ),
+                  style: labelStyle ??
+                      const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: OrionColors.textMuted,
+                      ),
                 ),
               ],
             ),

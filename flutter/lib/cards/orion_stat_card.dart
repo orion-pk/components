@@ -3,7 +3,7 @@ import '../theme/orion_theme.dart';
 
 enum OrionStatChangeType { up, down }
 
-/// Orion Stat Card widget mirroring `StatCard.jsx`
+/// Orion Stat Card widget mirroring `StatCard.jsx` with full customization support.
 class OrionStatCard extends StatelessWidget {
   final String title;
   final String value;
@@ -13,6 +13,18 @@ class OrionStatCard extends StatelessWidget {
   final String? subtitle;
   final VoidCallback? onClick;
   final EdgeInsetsGeometry? padding;
+
+  // Custom styling overrides (falls back to Orion defaults if null)
+  final Color? backgroundColor;
+  final Color? borderColor;
+  final double? borderWidth;
+  final BorderRadius? borderRadius;
+  final TextStyle? titleStyle;
+  final TextStyle? valueStyle;
+  final TextStyle? subtitleStyle;
+  final List<BoxShadow>? boxShadow;
+  final Color? iconBackgroundColor;
+  final Color? iconColor;
 
   const OrionStatCard({
     super.key,
@@ -24,26 +36,42 @@ class OrionStatCard extends StatelessWidget {
     this.subtitle,
     this.onClick,
     this.padding,
+    this.backgroundColor,
+    this.borderColor,
+    this.borderWidth,
+    this.borderRadius,
+    this.titleStyle,
+    this.valueStyle,
+    this.subtitleStyle,
+    this.boxShadow,
+    this.iconBackgroundColor,
+    this.iconColor,
   });
 
   @override
   Widget build(BuildContext context) {
+    final effectiveRadius = borderRadius ?? BorderRadius.circular(10);
+    final effectiveBg = backgroundColor ?? OrionColors.bgSurface;
+    final effectiveBorderColor = borderColor ?? OrionColors.borderColor;
+    final effectiveBorderWidth = borderWidth ?? 1.5;
+
     return InkWell(
       onTap: onClick,
-      borderRadius: BorderRadius.circular(10),
+      borderRadius: effectiveRadius,
       child: Container(
         padding: padding ?? const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: OrionColors.bgSurface,
-          border: Border.all(color: OrionColors.borderColor, width: 1.5),
-          borderRadius: BorderRadius.circular(10),
-          boxShadow: const [
-            BoxShadow(
-              color: Color.fromRGBO(0, 0, 0, 0.03),
-              offset: Offset(0, 1),
-              blurRadius: 3,
-            ),
-          ],
+          color: effectiveBg,
+          border: Border.all(color: effectiveBorderColor, width: effectiveBorderWidth),
+          borderRadius: effectiveRadius,
+          boxShadow: boxShadow ??
+              const [
+                BoxShadow(
+                  color: Color.fromRGBO(0, 0, 0, 0.03),
+                  offset: Offset(0, 1),
+                  blurRadius: 3,
+                ),
+              ],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -54,22 +82,23 @@ class OrionStatCard extends StatelessWidget {
               children: [
                 Text(
                   title,
-                  style: const TextStyle(
-                    fontSize: 13,
-                    color: OrionColors.textMuted,
-                    fontWeight: FontWeight.w600,
-                  ),
+                  style: titleStyle ??
+                      const TextStyle(
+                        fontSize: 13,
+                        color: OrionColors.textMuted,
+                        fontWeight: FontWeight.w600,
+                      ),
                 ),
                 if (icon != null)
                   Container(
                     padding: const EdgeInsets.all(6),
                     decoration: BoxDecoration(
-                      color: OrionColors.primaryLight,
+                      color: iconBackgroundColor ?? OrionColors.primaryLight,
                       borderRadius: BorderRadius.circular(6),
                     ),
                     child: IconTheme(
-                      data: const IconThemeData(
-                        color: OrionColors.primary,
+                      data: IconThemeData(
+                        color: iconColor ?? OrionColors.primary,
                         size: 16,
                       ),
                       child: icon!,
@@ -80,12 +109,13 @@ class OrionStatCard extends StatelessWidget {
             const SizedBox(height: 8),
             Text(
               value,
-              style: const TextStyle(
-                fontSize: 28,
-                fontWeight: FontWeight.w800,
-                color: OrionColors.textMain,
-                letterSpacing: -0.5,
-              ),
+              style: valueStyle ??
+                  const TextStyle(
+                    fontSize: 28,
+                    fontWeight: FontWeight.w800,
+                    color: OrionColors.textMain,
+                    letterSpacing: -0.5,
+                  ),
             ),
             if (change != null || subtitle != null) ...[
               const SizedBox(height: 6),
@@ -117,10 +147,11 @@ class OrionStatCard extends StatelessWidget {
                   if (subtitle != null)
                     Text(
                       subtitle!,
-                      style: const TextStyle(
-                        fontSize: 12,
-                        color: OrionColors.textSubtle,
-                      ),
+                      style: subtitleStyle ??
+                          const TextStyle(
+                            fontSize: 12,
+                            color: OrionColors.textSubtle,
+                          ),
                     ),
                 ],
               ),

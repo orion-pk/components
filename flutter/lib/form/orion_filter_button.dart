@@ -1,13 +1,23 @@
 import 'package:flutter/material.dart';
 import '../theme/orion_theme.dart';
 
-/// Orion Filter Button mirroring `FilterButton.jsx`
+/// Orion Filter Button mirroring `FilterButton.jsx` with full customization support.
 class OrionFilterButton extends StatelessWidget {
   final String label;
   final int? count;
   final bool active;
   final VoidCallback? onClick;
   final EdgeInsetsGeometry? padding;
+
+  // Custom styling overrides (falls back to Orion defaults if null)
+  final Color? activeBackgroundColor;
+  final Color? inactiveBackgroundColor;
+  final Color? activeTextColor;
+  final Color? inactiveTextColor;
+  final Color? activeBorderColor;
+  final Color? inactiveBorderColor;
+  final BorderRadius? borderRadius;
+  final TextStyle? textStyle;
 
   const OrionFilterButton({
     super.key,
@@ -16,25 +26,46 @@ class OrionFilterButton extends StatelessWidget {
     this.active = false,
     this.onClick,
     this.padding,
+    this.activeBackgroundColor,
+    this.inactiveBackgroundColor,
+    this.activeTextColor,
+    this.inactiveTextColor,
+    this.activeBorderColor,
+    this.inactiveBorderColor,
+    this.borderRadius,
+    this.textStyle,
   });
 
   @override
   Widget build(BuildContext context) {
-    final borderColor = active ? OrionColors.primary : OrionColors.borderColor;
-    final bgColor = active ? OrionColors.primaryLight : Colors.white;
-    final textColor = active ? OrionColors.primary : const Color(0xFF475569);
-    final iconColor = active ? OrionColors.primary : OrionColors.textMuted;
+    final effectiveBorderColor = active
+        ? (activeBorderColor ?? OrionColors.primary)
+        : (inactiveBorderColor ?? OrionColors.borderColor);
+
+    final effectiveBg = active
+        ? (activeBackgroundColor ?? OrionColors.primaryLight)
+        : (inactiveBackgroundColor ?? Colors.white);
+
+    final effectiveTextColor = active
+        ? (activeTextColor ?? OrionColors.primary)
+        : (inactiveTextColor ?? const Color(0xFF475569));
+
+    final effectiveIconColor = active
+        ? (activeTextColor ?? OrionColors.primary)
+        : (inactiveTextColor ?? OrionColors.textMuted);
+
+    final effectiveRadius = borderRadius ?? BorderRadius.circular(50);
 
     return InkWell(
       onTap: onClick,
-      borderRadius: BorderRadius.circular(50),
+      borderRadius: effectiveRadius,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 150),
         padding: padding ?? const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
         decoration: BoxDecoration(
-          color: bgColor,
-          borderRadius: BorderRadius.circular(50),
-          border: Border.all(color: borderColor, width: 1.5),
+          color: effectiveBg,
+          borderRadius: effectiveRadius,
+          border: Border.all(color: effectiveBorderColor, width: 1.5),
           boxShadow: active
               ? const [
                   BoxShadow(
@@ -48,22 +79,25 @@ class OrionFilterButton extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.filter_list, size: 14, color: iconColor),
+            Icon(Icons.filter_list, size: 14, color: effectiveIconColor),
             const SizedBox(width: 6),
             Text(
               label,
-              style: TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-                color: textColor,
-              ),
+              style: textStyle ??
+                  TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: effectiveTextColor,
+                  ),
             ),
             if (count != null) ...[
               const SizedBox(width: 6),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
                 decoration: BoxDecoration(
-                  color: active ? OrionColors.primary : OrionColors.borderColor,
+                  color: active
+                      ? (activeBorderColor ?? OrionColors.primary)
+                      : (inactiveBorderColor ?? OrionColors.borderColor),
                   borderRadius: OrionRadius.full,
                 ),
                 child: Text(

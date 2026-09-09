@@ -13,13 +13,23 @@ class OrionSidebarItem {
   });
 }
 
-/// Orion Sidebar widget mirroring `Sidebar.jsx`
+/// Orion Sidebar widget mirroring `Sidebar.jsx` with full customization support.
 class OrionSidebar extends StatelessWidget {
   final List<OrionSidebarItem> items;
   final String activeKey;
   final ValueChanged<String>? onSelect;
   final bool collapsed;
   final String headerTitle;
+
+  // Custom styling overrides (falls back to Orion defaults if null)
+  final Color? backgroundColor;
+  final Color? borderColor;
+  final double? borderWidth;
+  final Color? activeItemColor;
+  final Color? activeTextColor;
+  final Color? inactiveTextColor;
+  final double? width;
+  final double? collapsedWidth;
 
   const OrionSidebar({
     super.key,
@@ -28,16 +38,33 @@ class OrionSidebar extends StatelessWidget {
     this.onSelect,
     this.collapsed = false,
     this.headerTitle = 'Navigation',
+    this.backgroundColor,
+    this.borderColor,
+    this.borderWidth,
+    this.activeItemColor,
+    this.activeTextColor,
+    this.inactiveTextColor,
+    this.width,
+    this.collapsedWidth,
   });
 
   @override
   Widget build(BuildContext context) {
+    final effectiveWidth = width ?? 240.0;
+    final effectiveCollapsedWidth = collapsedWidth ?? 70.0;
+    final effectiveBg = backgroundColor ?? Colors.white;
+    final effectiveBorderColor = borderColor ?? OrionColors.borderColor;
+    final effectiveBorderWidth = borderWidth ?? 1.5;
+    final effectiveActiveItemBg = activeItemColor ?? OrionColors.primaryLight;
+    final effectiveActiveText = activeTextColor ?? OrionColors.primary;
+    final effectiveInactiveText = inactiveTextColor ?? OrionColors.textSecondary;
+
     return AnimatedContainer(
       duration: const Duration(milliseconds: 200),
-      width: collapsed ? 70 : 240,
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        border: Border(right: BorderSide(color: OrionColors.borderColor, width: 1.5)),
+      width: collapsed ? effectiveCollapsedWidth : effectiveWidth,
+      decoration: BoxDecoration(
+        color: effectiveBg,
+        border: Border(right: BorderSide(color: effectiveBorderColor, width: effectiveBorderWidth)),
       ),
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
       child: Column(
@@ -60,51 +87,53 @@ class OrionSidebar extends StatelessWidget {
           Expanded(
             child: ListView.separated(
               itemCount: items.length,
-              separatorBuilder: (_, __) => const SizedBox(height: 4),
+              separatorBuilder: (context, index) => const SizedBox(height: 4),
               itemBuilder: (context, index) {
                 final item = items[index];
-                final isAct = activeKey == item.key;
+                final isActive = item.key == activeKey;
 
                 return InkWell(
                   onTap: () => onSelect?.call(item.key),
                   borderRadius: OrionRadius.md,
-                  child: Container(
-                    padding: collapsed
-                        ? const EdgeInsets.all(10)
-                        : const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 150),
+                    padding: EdgeInsets.symmetric(
+                      horizontal: collapsed ? 8 : 12,
+                      vertical: 9,
+                    ),
                     decoration: BoxDecoration(
-                      color: isAct ? OrionColors.primaryLight : Colors.transparent,
+                      color: isActive ? effectiveActiveItemBg : Colors.transparent,
                       borderRadius: OrionRadius.md,
-                      border: Border.all(
-                        color: isAct ? OrionColors.primaryBorder : Colors.transparent,
-                        width: 1,
-                      ),
+                      border: isActive
+                          ? Border.all(color: OrionColors.primaryBorder)
+                          : null,
                     ),
                     child: Row(
                       mainAxisAlignment:
                           collapsed ? MainAxisAlignment.center : MainAxisAlignment.start,
                       children: [
-                        if (item.icon != null)
+                        if (item.icon != null) ...[
                           IconTheme(
                             data: IconThemeData(
-                              color: isAct ? OrionColors.primary : OrionColors.textMuted,
+                              color: isActive ? effectiveActiveText : effectiveInactiveText,
                               size: 18,
                             ),
                             child: item.icon!,
                           ),
-                        if (!collapsed) ...[
-                          const SizedBox(width: 10),
+                          if (!collapsed) const SizedBox(width: 10),
+                        ],
+                        if (!collapsed)
                           Expanded(
                             child: Text(
                               item.label,
                               style: TextStyle(
                                 fontSize: 13.5,
-                                fontWeight: isAct ? FontWeight.w700 : FontWeight.w500,
-                                color: isAct ? OrionColors.primary : const Color(0xFF475569),
+                                fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
+                                color: isActive ? effectiveActiveText : effectiveInactiveText,
                               ),
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ),
-                        ],
                       ],
                     ),
                   ),

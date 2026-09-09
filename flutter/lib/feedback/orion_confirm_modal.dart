@@ -3,7 +3,7 @@ import '../theme/orion_theme.dart';
 
 enum OrionConfirmVariant { danger, primary }
 
-/// Orion Confirm Modal / Dialog mirroring `ConfirmModal.jsx`
+/// Orion Confirm Modal / Dialog mirroring `ConfirmModal.jsx` with full customization support.
 class OrionConfirmDialog extends StatelessWidget {
   final String title;
   final String? subtitle;
@@ -15,6 +15,14 @@ class OrionConfirmDialog extends StatelessWidget {
   final String? error;
   final VoidCallback onConfirm;
   final VoidCallback onCancel;
+
+  // Custom styling overrides (falls back to Orion defaults if null)
+  final Color? backgroundColor;
+  final Color? borderColor;
+  final double? borderWidth;
+  final BorderRadius? borderRadius;
+  final TextStyle? titleStyle;
+  final TextStyle? messageStyle;
 
   const OrionConfirmDialog({
     super.key,
@@ -28,6 +36,12 @@ class OrionConfirmDialog extends StatelessWidget {
     this.error,
     required this.onConfirm,
     required this.onCancel,
+    this.backgroundColor,
+    this.borderColor,
+    this.borderWidth,
+    this.borderRadius,
+    this.titleStyle,
+    this.messageStyle,
   });
 
   static Future<bool?> show(
@@ -38,6 +52,12 @@ class OrionConfirmDialog extends StatelessWidget {
     String confirmText = 'Confirm',
     String cancelText = 'Cancel',
     OrionConfirmVariant confirmVariant = OrionConfirmVariant.danger,
+    Color? backgroundColor,
+    Color? borderColor,
+    double? borderWidth,
+    BorderRadius? borderRadius,
+    TextStyle? titleStyle,
+    TextStyle? messageStyle,
   }) {
     return showDialog<bool>(
       context: context,
@@ -49,6 +69,12 @@ class OrionConfirmDialog extends StatelessWidget {
         confirmText: confirmText,
         cancelText: cancelText,
         confirmVariant: confirmVariant,
+        backgroundColor: backgroundColor,
+        borderColor: borderColor,
+        borderWidth: borderWidth,
+        borderRadius: borderRadius,
+        titleStyle: titleStyle,
+        messageStyle: messageStyle,
         onConfirm: () => Navigator.of(ctx).pop(true),
         onCancel: () => Navigator.of(ctx).pop(false),
       ),
@@ -62,16 +88,21 @@ class OrionConfirmDialog extends StatelessWidget {
     final iconBg = isDanger ? OrionColors.dangerBg : OrionColors.primaryLight;
     final confirmBg = isDanger ? OrionColors.danger : OrionColors.primary;
 
+    final effectiveBg = backgroundColor ?? OrionColors.bgSurface;
+    final effectiveBorderColor = borderColor ?? OrionColors.borderColor;
+    final effectiveBorderWidth = borderWidth ?? 1.5;
+    final effectiveRadius = borderRadius ?? OrionRadius.lg;
+
     return Dialog(
-      backgroundColor: OrionColors.bgSurface,
+      backgroundColor: effectiveBg,
       elevation: 10,
       shape: RoundedRectangleBorder(
-        borderRadius: OrionRadius.lg,
-        side: const BorderSide(color: OrionColors.borderColor, width: 1.5),
+        borderRadius: effectiveRadius,
+        side: BorderSide(color: effectiveBorderColor, width: effectiveBorderWidth),
       ),
       insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
       child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 420),
+        constraints: const BoxConstraints(maxWidth: 460),
         child: Padding(
           padding: const EdgeInsets.all(24),
           child: Column(
@@ -80,77 +111,80 @@ class OrionConfirmDialog extends StatelessWidget {
             children: [
               // Header
               Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Container(
-                    width: 40,
-                    height: 40,
+                    width: 36,
+                    height: 36,
                     decoration: BoxDecoration(
                       color: iconBg,
                       shape: BoxShape.circle,
                     ),
                     alignment: Alignment.center,
-                    child: Icon(Icons.warning_amber_rounded, size: 22, color: iconColor),
+                    child: Icon(
+                      isDanger ? Icons.warning_amber_rounded : Icons.info_outline,
+                      size: 20,
+                      color: iconColor,
+                    ),
                   ),
-                  const SizedBox(width: 12),
+                  const SizedBox(width: 10),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
                           title,
-                          style: const TextStyle(
-                            fontSize: 17,
-                            fontWeight: FontWeight.w700,
-                            color: OrionColors.textMain,
-                          ),
+                          style: titleStyle ??
+                              const TextStyle(
+                                fontSize: 17,
+                                fontWeight: FontWeight.w800,
+                                color: OrionColors.textMain,
+                              ),
                         ),
                         if (subtitle != null) ...[
                           const SizedBox(height: 2),
                           Text(
                             subtitle!,
-                            style: const TextStyle(
-                              fontSize: 12,
-                              color: OrionColors.textMuted,
-                            ),
+                            style: const TextStyle(fontSize: 12.5, color: OrionColors.textMuted),
                           ),
                         ],
                       ],
                     ),
                   ),
                   IconButton(
-                    icon: const Icon(Icons.close, size: 18, color: OrionColors.textMuted),
-                    padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints(),
-                    onPressed: loading ? null : onCancel,
+                    icon: const Icon(Icons.close, size: 18, color: OrionColors.textSubtle),
+                    onPressed: onCancel,
                   ),
                 ],
+              ),
+              const SizedBox(height: 16),
+              // Body
+              Text(
+                message,
+                style: messageStyle ??
+                    const TextStyle(
+                      fontSize: 13.5,
+                      color: OrionColors.textSecondary,
+                      height: 1.45,
+                    ),
               ),
               if (error != null) ...[
                 const SizedBox(height: 12),
                 Container(
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFFFE4E6),
-                    borderRadius: BorderRadius.circular(6),
-                    border: Border.all(color: const Color(0xFFFECDD3)),
+                    color: OrionColors.statusRedBg,
+                    border: Border.all(color: OrionColors.statusRedBorder),
+                    borderRadius: OrionRadius.sm,
                   ),
                   child: Text(
                     error!,
-                    style: const TextStyle(color: OrionColors.danger, fontSize: 13),
+                    style: const TextStyle(color: OrionColors.statusRed, fontSize: 12.5),
                   ),
                 ),
               ],
-              const SizedBox(height: 16),
-              Text(
-                message,
-                style: const TextStyle(
-                  fontSize: 14,
-                  color: OrionColors.textSecondary,
-                  height: 1.5,
-                ),
-              ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 24),
+              // Actions
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
@@ -158,45 +192,29 @@ class OrionConfirmDialog extends StatelessWidget {
                     onPressed: loading ? null : onCancel,
                     style: OutlinedButton.styleFrom(
                       foregroundColor: OrionColors.textSecondary,
-                      backgroundColor: OrionColors.secondaryBg,
                       side: const BorderSide(color: OrionColors.borderColor, width: 1.5),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+                      shape: RoundedRectangleBorder(borderRadius: OrionRadius.sm),
                       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                     ),
-                    child: Text(
-                      cancelText,
-                      style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
-                    ),
+                    child: Text(cancelText, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
                   ),
-                  const SizedBox(width: 10),
+                  const SizedBox(width: 8),
                   ElevatedButton(
                     onPressed: loading ? null : onConfirm,
                     style: ElevatedButton.styleFrom(
                       foregroundColor: Colors.white,
                       backgroundColor: confirmBg,
                       elevation: 0,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
-                      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+                      shape: RoundedRectangleBorder(borderRadius: OrionRadius.sm),
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                     ),
                     child: loading
                         ? const SizedBox(
-                            width: 16,
-                            height: 16,
+                            width: 14,
+                            height: 14,
                             child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
                           )
-                        : Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              if (isDanger) ...[
-                                const Icon(Icons.delete_outline, size: 16),
-                                const SizedBox(width: 6),
-                              ],
-                              Text(
-                                confirmText,
-                                style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
-                              ),
-                            ],
-                          ),
+                        : Text(confirmText, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
                   ),
                 ],
               ),

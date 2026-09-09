@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../theme/orion_theme.dart';
 
-/// Orion Pagination controls mirroring `Pagination.jsx`
+/// Orion Pagination controls mirroring `Pagination.jsx` with full customization support.
 class OrionPagination extends StatelessWidget {
   final int currentPage;
   final int pageSize;
@@ -9,6 +9,14 @@ class OrionPagination extends StatelessWidget {
   final ValueChanged<int>? onPageChange;
   final ValueChanged<int>? onPageSizeChange;
   final List<int> pageSizeOptions;
+
+  // Custom styling overrides (falls back to Orion defaults if null)
+  final Color? backgroundColor;
+  final Color? borderColor;
+  final double? borderWidth;
+  final BorderRadius? borderRadius;
+  final EdgeInsetsGeometry? padding;
+  final Color? primaryColor;
 
   const OrionPagination({
     super.key,
@@ -18,18 +26,30 @@ class OrionPagination extends StatelessWidget {
     this.onPageChange,
     this.onPageSizeChange,
     this.pageSizeOptions = const [10, 20, 30, 50],
+    this.backgroundColor,
+    this.borderColor,
+    this.borderWidth,
+    this.borderRadius,
+    this.padding,
+    this.primaryColor,
   });
 
   @override
   Widget build(BuildContext context) {
     final totalPages = (totalItems / pageSize).ceil().clamp(1, 999999);
 
+    final effectiveBg = backgroundColor ?? Colors.white;
+    final effectiveBorderColor = borderColor ?? OrionColors.borderColor;
+    final effectiveBorderWidth = borderWidth ?? 1.5;
+    final effectiveRadius = borderRadius ?? OrionRadius.md;
+    final effectivePrimary = primaryColor ?? OrionColors.primary;
+
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+      padding: padding ?? const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: OrionRadius.md,
-        border: Border.all(color: OrionColors.borderColor, width: 1.5),
+        color: effectiveBg,
+        borderRadius: effectiveRadius,
+        border: Border.all(color: effectiveBorderColor, width: effectiveBorderWidth),
       ),
       child: Wrap(
         spacing: 16,
@@ -45,7 +65,7 @@ class OrionPagination extends StatelessWidget {
                 style: OutlinedButton.styleFrom(
                   foregroundColor: OrionColors.textMain,
                   disabledForegroundColor: OrionColors.textSubtle,
-                  side: const BorderSide(color: OrionColors.borderColor, width: 1.5),
+                  side: BorderSide(color: effectiveBorderColor, width: effectiveBorderWidth),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                   minimumSize: const Size(0, 30),
@@ -62,7 +82,7 @@ class OrionPagination extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: currentPage == 1 ? OrionColors.secondaryBg : Colors.white,
                     borderRadius: BorderRadius.circular(6),
-                    border: Border.all(color: OrionColors.borderColor, width: 1.5),
+                    border: Border.all(color: effectiveBorderColor, width: effectiveBorderWidth),
                   ),
                   child: const Text(
                     '1',
@@ -85,7 +105,7 @@ class OrionPagination extends StatelessWidget {
                     decoration: BoxDecoration(
                       color: currentPage == totalPages ? OrionColors.secondaryBg : Colors.white,
                       borderRadius: BorderRadius.circular(6),
-                      border: Border.all(color: OrionColors.borderColor, width: 1.5),
+                      border: Border.all(color: effectiveBorderColor, width: effectiveBorderWidth),
                     ),
                     child: Text(
                       '$totalPages',
@@ -99,9 +119,9 @@ class OrionPagination extends StatelessWidget {
                 onPressed: currentPage < totalPages ? () => onPageChange?.call(currentPage + 1) : null,
                 style: ElevatedButton.styleFrom(
                   foregroundColor: Colors.white,
-                  backgroundColor: OrionColors.primary,
+                  backgroundColor: effectivePrimary,
                   disabledForegroundColor: Colors.white.withValues(alpha: 0.5),
-                  disabledBackgroundColor: OrionColors.primary.withValues(alpha: 0.5),
+                  disabledBackgroundColor: effectivePrimary.withValues(alpha: 0.5),
                   elevation: 0,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
@@ -122,7 +142,7 @@ class OrionPagination extends StatelessWidget {
                 height: 28,
                 padding: const EdgeInsets.symmetric(horizontal: 6),
                 decoration: BoxDecoration(
-                  border: Border.all(color: OrionColors.borderColor, width: 1.5),
+                  border: Border.all(color: effectiveBorderColor, width: effectiveBorderWidth),
                   borderRadius: BorderRadius.circular(6),
                 ),
                 alignment: Alignment.center,
@@ -150,7 +170,7 @@ class OrionPagination extends StatelessWidget {
                 height: 28,
                 padding: const EdgeInsets.symmetric(horizontal: 6),
                 decoration: BoxDecoration(
-                  border: Border.all(color: OrionColors.borderColor, width: 1.5),
+                  border: Border.all(color: effectiveBorderColor, width: effectiveBorderWidth),
                   borderRadius: BorderRadius.circular(6),
                 ),
                 alignment: Alignment.center,
