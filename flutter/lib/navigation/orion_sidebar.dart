@@ -5,11 +5,21 @@ class OrionSidebarItem {
   final String key;
   final String label;
   final Widget? icon;
+  final IconData? iconData; // Shorthand
+  final String? badge;
+  final int? count;
+  final String? tooltip;
+  final VoidCallback? onTap;
 
   const OrionSidebarItem({
     required this.key,
     required this.label,
     this.icon,
+    this.iconData,
+    this.badge,
+    this.count,
+    this.tooltip,
+    this.onTap,
   });
 }
 
@@ -18,8 +28,12 @@ class OrionSidebar extends StatelessWidget {
   final List<OrionSidebarItem> items;
   final String activeKey;
   final ValueChanged<String>? onSelect;
+  final ValueChanged<String>? onItemTap; // Alias for onSelect
   final bool collapsed;
+  final bool? isCollapsed; // Alias for collapsed
   final String headerTitle;
+  final Widget? headerWidget;
+  final Widget? footerWidget;
 
   // Custom styling overrides (falls back to Orion defaults if null)
   final Color? backgroundColor;
@@ -36,8 +50,12 @@ class OrionSidebar extends StatelessWidget {
     required this.items,
     required this.activeKey,
     this.onSelect,
+    this.onItemTap,
     this.collapsed = false,
+    this.isCollapsed,
     this.headerTitle = 'Navigation',
+    this.headerWidget,
+    this.footerWidget,
     this.backgroundColor,
     this.borderColor,
     this.borderWidth,
@@ -50,6 +68,8 @@ class OrionSidebar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final effectiveCollapsed = isCollapsed ?? collapsed;
+    final effectiveCallback = onItemTap ?? onSelect;
     final effectiveWidth = width ?? 240.0;
     final effectiveCollapsedWidth = collapsedWidth ?? 70.0;
     final effectiveBg = backgroundColor ?? Colors.white;
@@ -61,7 +81,7 @@ class OrionSidebar extends StatelessWidget {
 
     return AnimatedContainer(
       duration: const Duration(milliseconds: 200),
-      width: collapsed ? effectiveCollapsedWidth : effectiveWidth,
+      width: effectiveCollapsed ? effectiveCollapsedWidth : effectiveWidth,
       decoration: BoxDecoration(
         color: effectiveBg,
         border: Border(right: BorderSide(color: effectiveBorderColor, width: effectiveBorderWidth)),
@@ -70,7 +90,10 @@ class OrionSidebar extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (!collapsed && headerTitle.isNotEmpty) ...[
+          if (headerWidget != null) ...[
+            headerWidget!,
+            const SizedBox(height: 12),
+          ] else if (!effectiveCollapsed && headerTitle.isNotEmpty) ...[
             Padding(
               padding: const EdgeInsets.only(left: 10, bottom: 8),
               child: Text(
@@ -91,56 +114,94 @@ class OrionSidebar extends StatelessWidget {
               itemBuilder: (context, index) {
                 final item = items[index];
                 final isActive = item.key == activeKey;
+                final effectiveIcon = item.icon ?? (item.iconData != null ? Icon(item.iconData) : null);
+                final badgeText = item.badge ?? (item.count != null ? '${item.count}' : null);
 
-                return InkWell(
-                  onTap: () => onSelect?.call(item.key),
-                  borderRadius: OrionRadius.md,
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 150),
-                    padding: EdgeInsets.symmetric(
-                      horizontal: collapsed ? 8 : 12,
-                      vertical: 9,
-                    ),
-                    decoration: BoxDecoration(
-                      color: isActive ? effectiveActiveItemBg : Colors.transparent,
-                      borderRadius: OrionRadius.md,
-                      border: isActive
-                          ? Border.all(color: OrionColors.primaryBorder)
-                          : null,
-                    ),
-                    child: Row(
-                      mainAxisAlignment:
-                          collapsed ? MainAxisAlignment.center : MainAxisAlignment.start,
-                      children: [
-                        if (item.icon != null) ...[
-                          IconTheme(
-                            data: IconThemeData(
-                              color: isActive ? effectiveActiveText : effectiveInactiveText,
-                              size: 18,
-                            ),
-                            child: item.icon!,
+                Widget rowWidget = AnimatedContainer(
+                  duration: const Duration(milliseconds: 150),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: effectiveCollapsed ? 8 : 12,
+                    vertical: 9,
+                  ),
+                  decoration: BoxDecoration(
+                    color: isActive ? effectiveActiveItemBg : Colors.transparent,
+                    borderRadius: OrionRadius.md,
+                    border: isActive
+                        ? Border.all(color: OrionColors.primaryBorder)
+                        : null,
+                  ),
+                  child: Row(
+                    mainAxisAlignment:
+                        effectiveCollapsed ? MainAxisAlignment.center : MainAxisAlignment.start,
+                    children: [
+                      if (effectiveIcon != null) ...[
+                        IconTheme(
+                          data: IconThemeData(
+                            color: isActive ? effectiveActiveText : effectiveInactiveText,
+                            size: 18,
                           ),
-                          if (!collapsed) const SizedBox(width: 10),
-                        ],
-                        if (!collapsed)
-                          Expanded(
+                          child: effectiveIcon,
+                        ),
+                        if (!effectiveCollapsed) const SizedBox(width: 10),
+                      ],
+                      if (!effectiveCollapsed) ...[
+                        Expanded(
+                          child: Text(
+                            item.label,
+                            style: TextStyle(
+                              fontSize: 13.5,
+                              fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
+                              color: isActive ? effectiveActiveText : effectiveInactiveText,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        if (badgeText != null)
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+                            decoration: BoxDecoration(
+                              color: isActive ? OrionColors.primary : const Color(0xFFE2E8F0),
+                              borderRadius: OrionRadius.full,
+                            ),
                             child: Text(
-                              item.label,
+                              badgeText,
                               style: TextStyle(
-                                fontSize: 13.5,
-                                fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
-                                color: isActive ? effectiveActiveText : effectiveInactiveText,
+                                fontSize: 11,
+                                fontWeight: FontWeight.w700,
+                                color: isActive ? Colors.white : OrionColors.textSecondary,
                               ),
-                              overflow: TextOverflow.ellipsis,
                             ),
                           ),
                       ],
-                    ),
+                    ],
                   ),
+                );
+
+                if (item.tooltip != null) {
+                  rowWidget = Tooltip(
+                    message: item.tooltip!,
+                    child: rowWidget,
+                  );
+                }
+
+                return InkWell(
+                  onTap: () {
+                    if (item.onTap != null) {
+                      item.onTap!();
+                    } else if (effectiveCallback != null) {
+                      effectiveCallback(item.key);
+                    }
+                  },
+                  borderRadius: OrionRadius.md,
+                  child: rowWidget,
                 );
               },
             ),
           ),
+          if (footerWidget != null) ...[
+            const SizedBox(height: 12),
+            footerWidget!,
+          ],
         ],
       ),
     );

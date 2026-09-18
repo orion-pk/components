@@ -5,40 +5,61 @@ class OrionUser {
   final String name;
   final String email;
   final String role;
+  final String? avatarUrl;
 
   const OrionUser({
     required this.name,
     required this.email,
     required this.role,
+    this.avatarUrl,
   });
 }
 
-/// Orion Profile Dropdown widget mirroring `ProfileDropdown.jsx`
+/// Orion Profile Dropdown widget mirroring `ProfileDropdown.jsx` with full customization support.
 class OrionProfileDropdown extends StatelessWidget {
-  final OrionUser user;
+  final OrionUser? user;
+  final String? userName;
+  final String? userEmail;
+  final String? userRole;
+  final String? avatarUrl;
   final VoidCallback? onProfileClick;
+  final VoidCallback? onProfile; // Alias
   final VoidCallback? onSettings;
   final VoidCallback? onLogout;
+  final List<PopupMenuEntry<dynamic>>? customMenuItems;
 
   const OrionProfileDropdown({
     super.key,
-    this.user = const OrionUser(
-      name: 'Super Admin',
-      email: 'admin@orion.edu',
-      role: 'Super Admin',
-    ),
+    this.user,
+    this.userName,
+    this.userEmail,
+    this.userRole,
+    this.avatarUrl,
     this.onProfileClick,
+    this.onProfile,
     this.onSettings,
     this.onLogout,
+    this.customMenuItems,
   });
 
   @override
   Widget build(BuildContext context) {
-    final initials = user.name.trim().isNotEmpty
-        ? user.name.trim().substring(0, user.name.trim().length >= 2 ? 2 : 1).toUpperCase()
+    final effectiveUser = user ??
+        OrionUser(
+          name: userName ?? 'Super Admin',
+          email: userEmail ?? 'admin@orion.edu',
+          role: userRole ?? 'Super Admin',
+          avatarUrl: avatarUrl,
+        );
+
+    final effectiveProfile = onProfile ?? onProfileClick;
+    final initials = effectiveUser.name.trim().isNotEmpty
+        ? effectiveUser.name.trim().substring(0, effectiveUser.name.trim().length >= 2 ? 2 : 1).toUpperCase()
         : 'U';
 
-    return PopupMenuButton<int>(
+    final effectiveAvatar = effectiveUser.avatarUrl ?? avatarUrl;
+
+    return PopupMenuButton<dynamic>(
       offset: const Offset(0, 44),
       elevation: 4,
       shape: RoundedRectangleBorder(
@@ -47,13 +68,13 @@ class OrionProfileDropdown extends StatelessWidget {
       ),
       color: Colors.white,
       itemBuilder: (context) => [
-        PopupMenuItem<int>(
+        PopupMenuItem<dynamic>(
           enabled: false,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                user.name,
+                effectiveUser.name,
                 style: const TextStyle(
                   fontSize: 13.5,
                   fontWeight: FontWeight.w700,
@@ -61,7 +82,7 @@ class OrionProfileDropdown extends StatelessWidget {
                 ),
               ),
               Text(
-                user.email,
+                effectiveUser.email,
                 style: const TextStyle(
                   fontSize: 12,
                   color: OrionColors.textMuted,
@@ -71,9 +92,10 @@ class OrionProfileDropdown extends StatelessWidget {
             ],
           ),
         ),
-        if (onProfileClick != null)
-          PopupMenuItem<int>(
-            value: 1,
+        if (customMenuItems != null) ...customMenuItems!,
+        if (effectiveProfile != null)
+          PopupMenuItem<dynamic>(
+            value: 'profile',
             child: const Row(
               children: [
                 Icon(Icons.person_outline, size: 16, color: OrionColors.textSecondary),
@@ -83,8 +105,8 @@ class OrionProfileDropdown extends StatelessWidget {
             ),
           ),
         if (onSettings != null)
-          PopupMenuItem<int>(
-            value: 2,
+          PopupMenuItem<dynamic>(
+            value: 'settings',
             child: const Row(
               children: [
                 Icon(Icons.settings_outlined, size: 16, color: OrionColors.textSecondary),
@@ -94,8 +116,8 @@ class OrionProfileDropdown extends StatelessWidget {
             ),
           ),
         if (onLogout != null)
-          PopupMenuItem<int>(
-            value: 3,
+          PopupMenuItem<dynamic>(
+            value: 'logout',
             child: const Row(
               children: [
                 Icon(Icons.logout, size: 16, color: Color(0xFFDC2626)),
@@ -106,9 +128,9 @@ class OrionProfileDropdown extends StatelessWidget {
           ),
       ],
       onSelected: (val) {
-        if (val == 1) onProfileClick?.call();
-        if (val == 2) onSettings?.call();
-        if (val == 3) onLogout?.call();
+        if (val == 'profile') effectiveProfile?.call();
+        if (val == 'settings') onSettings?.call();
+        if (val == 'logout') onLogout?.call();
       },
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -116,19 +138,27 @@ class OrionProfileDropdown extends StatelessWidget {
           Container(
             width: 36,
             height: 36,
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               color: OrionColors.primary,
               shape: BoxShape.circle,
+              image: effectiveAvatar != null
+                  ? DecorationImage(
+                      image: NetworkImage(effectiveAvatar),
+                      fit: BoxFit.cover,
+                    )
+                  : null,
             ),
             alignment: Alignment.center,
-            child: Text(
-              initials,
-              style: const TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.w800,
-                fontSize: 13,
-              ),
-            ),
+            child: effectiveAvatar == null
+                ? Text(
+                    initials,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w800,
+                      fontSize: 13,
+                    ),
+                  )
+                : null,
           ),
           const SizedBox(width: 8),
           Column(
@@ -136,7 +166,7 @@ class OrionProfileDropdown extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                user.name,
+                effectiveUser.name,
                 style: const TextStyle(
                   fontSize: 13.5,
                   fontWeight: FontWeight.w700,
@@ -145,7 +175,7 @@ class OrionProfileDropdown extends StatelessWidget {
                 ),
               ),
               Text(
-                user.role,
+                effectiveUser.role,
                 style: const TextStyle(
                   fontSize: 11.5,
                   color: OrionColors.textMuted,

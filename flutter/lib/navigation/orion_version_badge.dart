@@ -4,11 +4,13 @@ import 'orion_update_dialog.dart';
 
 /// Orion Version Badge mirroring `VersionBadge.jsx` with full customization support.
 class OrionVersionBadge extends StatelessWidget {
+  final String? version; // Alias for currentVersion
   final String currentVersion;
   final bool hasUpdate;
   final String latestVersion;
   final List<String> releaseNotes;
   final VoidCallback? onUpdateDownload;
+  final VoidCallback? onTap;
 
   // Custom styling overrides (falls back to Orion defaults if null)
   final Color? backgroundColor;
@@ -24,11 +26,13 @@ class OrionVersionBadge extends StatelessWidget {
 
   const OrionVersionBadge({
     super.key,
-    this.currentVersion = 'v2.4.0',
+    this.version,
+    this.currentVersion = 'v1.0.0',
     this.hasUpdate = false,
-    this.latestVersion = 'v2.4.1',
+    this.latestVersion = 'v1.0.1',
     this.releaseNotes = const [],
     this.onUpdateDownload,
+    this.onTap,
     this.backgroundColor,
     this.textColor,
     this.borderColor,
@@ -43,6 +47,7 @@ class OrionVersionBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final effectiveVersion = version ?? currentVersion;
     final defaultBgColor = hasUpdate ? OrionColors.statusOrangeBg : OrionColors.primaryLight;
     final defaultTextColor = hasUpdate ? const Color(0xFFB45309) : OrionColors.primary;
     final defaultBorderColor = hasUpdate ? OrionColors.statusOrangeBorder : OrionColors.primaryBorder;
@@ -58,16 +63,17 @@ class OrionVersionBadge extends StatelessWidget {
     final effectiveDotColor = dotColor ?? const Color(0xFFB45309);
 
     return InkWell(
-      onTap: () {
-        OrionUpdateDialog.show(
-          context,
-          currentVersion: currentVersion,
-          latestVersion: latestVersion,
-          hasUpdate: hasUpdate,
-          releaseNotes: releaseNotes,
-          onUpdateDownload: onUpdateDownload,
-        );
-      },
+      onTap: onTap ??
+          () {
+            OrionUpdateDialog.show(
+              context,
+              currentVersion: effectiveVersion,
+              latestVersion: latestVersion,
+              hasUpdate: hasUpdate,
+              releaseNotes: releaseNotes,
+              onUpdateDownload: onUpdateDownload,
+            );
+          },
       borderRadius: effectiveRadius,
       child: Container(
         padding: effectivePadding,
@@ -86,7 +92,7 @@ class OrionVersionBadge extends StatelessWidget {
             ),
             const SizedBox(width: 5),
             Text(
-              currentVersion,
+              effectiveVersion,
               style: textStyle ??
                   TextStyle(
                     fontSize: 11.5,

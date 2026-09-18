@@ -2,13 +2,22 @@ import 'package:flutter/material.dart';
 import '../theme/orion_theme.dart';
 import 'orion_button.dart';
 
-/// Orion Login Form card mirroring `LoginForm.jsx`
+/// Orion Login Form card mirroring `LoginForm.jsx` with full customization support.
 class OrionLoginForm extends StatefulWidget {
-  final Future<void> Function(String username, String password) onSubmit;
+  final dynamic Function(String username, String password) onSubmit;
   final bool loading;
   final String? error;
   final String title;
   final String subtitle;
+  final String? initialUsername;
+  final String? initialPassword;
+  final String submitButtonText;
+  final Widget? logo;
+  final VoidCallback? onForgotPassword;
+  final bool showRememberMe;
+  final bool rememberMe;
+  final ValueChanged<bool>? onRememberMeChanged;
+  final List<Widget>? extraWidgets;
 
   const OrionLoginForm({
     super.key,
@@ -17,6 +26,15 @@ class OrionLoginForm extends StatefulWidget {
     this.error,
     this.title = 'Sign In to Your Account',
     this.subtitle = 'Enter your credentials to continue',
+    this.initialUsername,
+    this.initialPassword,
+    this.submitButtonText = 'Sign In',
+    this.logo,
+    this.onForgotPassword,
+    this.showRememberMe = false,
+    this.rememberMe = false,
+    this.onRememberMeChanged,
+    this.extraWidgets,
   });
 
   @override
@@ -24,9 +42,18 @@ class OrionLoginForm extends StatefulWidget {
 }
 
 class _OrionLoginFormState extends State<OrionLoginForm> {
-  final _usernameController = TextEditingController();
-  final _passwordController = TextEditingController();
+  late TextEditingController _usernameController;
+  late TextEditingController _passwordController;
   bool _showPassword = false;
+  late bool _rememberMe;
+
+  @override
+  void initState() {
+    super.initState();
+    _usernameController = TextEditingController(text: widget.initialUsername ?? '');
+    _passwordController = TextEditingController(text: widget.initialPassword ?? '');
+    _rememberMe = widget.rememberMe;
+  }
 
   @override
   void dispose() {
@@ -65,6 +92,10 @@ class _OrionLoginFormState extends State<OrionLoginForm> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          if (widget.logo != null) ...[
+            Center(child: widget.logo!),
+            const SizedBox(height: 16),
+          ],
           // Header
           Text(
             widget.title,
@@ -134,6 +165,7 @@ class _OrionLoginFormState extends State<OrionLoginForm> {
             alignment: Alignment.center,
             child: TextField(
               controller: _usernameController,
+              onSubmitted: (_) => _handleFormSubmit(),
               style: const TextStyle(fontSize: 14, color: OrionColors.textMain),
               decoration: const InputDecoration(
                 hintText: 'Enter your username',
@@ -168,6 +200,7 @@ class _OrionLoginFormState extends State<OrionLoginForm> {
             child: TextField(
               controller: _passwordController,
               obscureText: !_showPassword,
+              onSubmitted: (_) => _handleFormSubmit(),
               style: const TextStyle(fontSize: 14, color: OrionColors.textMain),
               decoration: InputDecoration(
                 hintText: 'Enter your password',
@@ -187,11 +220,47 @@ class _OrionLoginFormState extends State<OrionLoginForm> {
               ),
             ),
           ),
-          const SizedBox(height: 24),
+
+          if (widget.showRememberMe || widget.onForgotPassword != null) ...[
+            const SizedBox(height: 12),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                if (widget.showRememberMe)
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Checkbox(
+                        value: _rememberMe,
+                        onChanged: (val) {
+                          setState(() => _rememberMe = val ?? false);
+                          if (widget.onRememberMeChanged != null) {
+                            widget.onRememberMeChanged!(val ?? false);
+                          }
+                        },
+                      ),
+                      const Text('Remember me', style: TextStyle(fontSize: 12.5, color: OrionColors.textSecondary)),
+                    ],
+                  )
+                else
+                  const SizedBox.shrink(),
+                if (widget.onForgotPassword != null)
+                  TextButton(
+                    onPressed: widget.onForgotPassword,
+                    style: TextButton.styleFrom(padding: EdgeInsets.zero, minimumSize: Size.zero),
+                    child: const Text('Forgot password?', style: TextStyle(fontSize: 12.5, color: OrionColors.primary)),
+                  ),
+              ],
+            ),
+          ],
+
+          if (widget.extraWidgets != null) ...widget.extraWidgets!,
+
+          const SizedBox(height: 20),
 
           // Submit Button
           OrionButton(
-            label: 'Sign In',
+            text: widget.submitButtonText,
             variant: OrionButtonVariant.primary,
             size: OrionButtonSize.lg,
             isLoading: widget.loading,

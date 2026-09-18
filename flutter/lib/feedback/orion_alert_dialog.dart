@@ -3,36 +3,59 @@ import '../theme/orion_theme.dart';
 
 enum OrionAlertVariant { success, danger, warning, info }
 
-/// Orion Alert Dialog mirroring `AlertDialog.jsx`
+/// Orion Alert Dialog mirroring `AlertDialog.jsx` with full customization support.
 class OrionAlertDialog extends StatelessWidget {
   final String title;
-  final String description;
+  final String? description;
+  final String? message; // Alias for description
+  final String? content; // Alias for description
   final OrionAlertVariant variant;
   final String confirmText;
-  final VoidCallback onClose;
+  final VoidCallback? onClose;
+  final VoidCallback? onConfirm;
+
+  // Custom styling overrides
+  final Color? backgroundColor;
+  final Color? borderColor;
+  final BorderRadius? borderRadius;
+  final TextStyle? titleStyle;
+  final TextStyle? descriptionStyle;
 
   const OrionAlertDialog({
     super.key,
     this.title = 'Notification',
-    required this.description,
+    this.description,
+    this.message,
+    this.content,
     this.variant = OrionAlertVariant.info,
     this.confirmText = 'Got it',
-    required this.onClose,
+    this.onClose,
+    this.onConfirm,
+    this.backgroundColor,
+    this.borderColor,
+    this.borderRadius,
+    this.titleStyle,
+    this.descriptionStyle,
   });
 
   static Future<void> show(
     BuildContext context, {
     String title = 'Notification',
-    required String description,
+    String? description,
+    String? message,
+    String? content,
     OrionAlertVariant variant = OrionAlertVariant.info,
     String confirmText = 'Got it',
+    bool barrierDismissible = true,
   }) {
+    final text = description ?? message ?? content ?? '';
     return showDialog<void>(
       context: context,
+      barrierDismissible: barrierDismissible,
       barrierColor: const Color.fromRGBO(15, 23, 42, 0.5),
       builder: (ctx) => OrionAlertDialog(
         title: title,
-        description: description,
+        description: text,
         variant: variant,
         confirmText: confirmText,
         onClose: () => Navigator.of(ctx).pop(),
@@ -42,6 +65,7 @@ class OrionAlertDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bodyText = description ?? message ?? content ?? '';
     IconData icon;
     Color iconColor;
 
@@ -64,12 +88,14 @@ class OrionAlertDialog extends StatelessWidget {
         break;
     }
 
+    final handleClose = onClose ?? onConfirm ?? () => Navigator.of(context, rootNavigator: true).pop();
+
     return Dialog(
-      backgroundColor: OrionColors.bgSurface,
+      backgroundColor: backgroundColor ?? OrionColors.bgSurface,
       elevation: 10,
       shape: RoundedRectangleBorder(
-        borderRadius: OrionRadius.lg,
-        side: const BorderSide(color: OrionColors.borderColor, width: 1.5),
+        borderRadius: borderRadius ?? OrionRadius.lg,
+        side: BorderSide(color: borderColor ?? OrionColors.borderColor, width: 1.5),
       ),
       insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
       child: ConstrainedBox(
@@ -88,35 +114,37 @@ class OrionAlertDialog extends StatelessWidget {
                   Expanded(
                     child: Text(
                       title,
-                      style: const TextStyle(
-                        fontSize: 17,
-                        fontWeight: FontWeight.w700,
-                        color: OrionColors.textMain,
-                      ),
+                      style: titleStyle ??
+                          const TextStyle(
+                            fontSize: 17,
+                            fontWeight: FontWeight.w700,
+                            color: OrionColors.textMain,
+                          ),
                     ),
                   ),
                   IconButton(
                     icon: const Icon(Icons.close, size: 18, color: OrionColors.textMuted),
                     padding: EdgeInsets.zero,
                     constraints: const BoxConstraints(),
-                    onPressed: onClose,
+                    onPressed: handleClose,
                   ),
                 ],
               ),
               const SizedBox(height: 16),
               Text(
-                description,
-                style: const TextStyle(
-                  fontSize: 14,
-                  color: OrionColors.textSecondary,
-                  height: 1.5,
-                ),
+                bodyText,
+                style: descriptionStyle ??
+                    const TextStyle(
+                      fontSize: 14,
+                      color: OrionColors.textSecondary,
+                      height: 1.5,
+                    ),
               ),
               const SizedBox(height: 20),
               Align(
                 alignment: Alignment.centerRight,
                 child: ElevatedButton(
-                  onPressed: onClose,
+                  onPressed: handleClose,
                   style: ElevatedButton.styleFrom(
                     foregroundColor: Colors.white,
                     backgroundColor: OrionColors.primary,

@@ -7,6 +7,9 @@ class OrionSeverityPill extends StatelessWidget {
   final String? label;
   final EdgeInsetsGeometry? padding;
   final TextStyle? textStyle;
+  final VoidCallback? onTap;
+  final Widget? icon;
+  final String? tooltip;
   final Color? backgroundColor;
   final Color? textColor;
   final Color? borderColor;
@@ -21,6 +24,9 @@ class OrionSeverityPill extends StatelessWidget {
     this.label,
     this.padding,
     this.textStyle,
+    this.onTap,
+    this.icon,
+    this.tooltip,
     this.backgroundColor,
     this.textColor,
     this.borderColor,
@@ -60,6 +66,9 @@ class OrionSeverityPill extends StatelessWidget {
       label: displayText,
       padding: padding,
       textStyle: textStyle,
+      onTap: onTap,
+      icon: icon,
+      tooltip: tooltip,
       backgroundColor: backgroundColor,
       textColor: textColor,
       borderColor: borderColor,

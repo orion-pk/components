@@ -10,10 +10,14 @@ enum OrionStatusType {
 
 /// Orion Status Pill widget mirroring `StatusPill.jsx` with full styling customization.
 class OrionStatusPill extends StatelessWidget {
-  final String status;
+  final String? status;
   final String? label;
+  final OrionStatusType? type;
   final EdgeInsetsGeometry? padding;
   final TextStyle? textStyle;
+  final VoidCallback? onTap;
+  final Widget? icon;
+  final String? tooltip;
 
   // Custom styling overrides (falls back to Orion status colors if null)
   final Color? backgroundColor;
@@ -28,8 +32,12 @@ class OrionStatusPill extends StatelessWidget {
     super.key,
     this.status = 'completed',
     this.label,
+    this.type,
     this.padding,
     this.textStyle,
+    this.onTap,
+    this.icon,
+    this.tooltip,
     this.backgroundColor,
     this.textColor,
     this.borderColor,
@@ -39,61 +47,54 @@ class OrionStatusPill extends StatelessWidget {
     this.showDot = true,
   });
 
-  static (String text, OrionStatusType type) _resolveConfig(String status, String? label) {
-    final key = status.trim().toLowerCase().replaceAll(RegExp(r'\s+'), '_');
+  static (String text, OrionStatusType type) _resolveConfig(String? status, String? label, OrionStatusType? explicitType) {
+    if (explicitType != null) {
+      return (label ?? status ?? '', explicitType);
+    }
+    final key = (status ?? '').trim().toLowerCase().replaceAll(RegExp(r'\s+'), '_');
     switch (key) {
       case 'completed':
-        return (label ?? 'Completed', OrionStatusType.success);
       case 'registered':
-        return (label ?? 'Registered', OrionStatusType.success);
       case 'active':
-        return (label ?? 'Active', OrionStatusType.success);
       case 'paid':
-        return (label ?? 'Paid', OrionStatusType.success);
       case 'present':
-        return (label ?? 'Present', OrionStatusType.success);
+      case 'success':
+        return (label ?? (status != null && status.isNotEmpty ? status : 'Completed'), OrionStatusType.success);
 
       case 'pending':
-        return (label ?? 'Pending', OrionStatusType.warning);
       case 'in_consultation':
-        return (label ?? 'In Consultation', OrionStatusType.warning);
       case 'under_review':
-        return (label ?? 'Under Review', OrionStatusType.warning);
       case 'partially_paid':
-        return (label ?? 'Partially Paid', OrionStatusType.warning);
+      case 'warning':
+        return (label ?? (status != null && status.isNotEmpty ? status : 'Pending'), OrionStatusType.warning);
 
       case 'unregistered':
-        return (label ?? 'Unregistered', OrionStatusType.danger);
       case 'critical':
-        return (label ?? 'Critical', OrionStatusType.danger);
       case 'absent':
-        return (label ?? 'Absent', OrionStatusType.danger);
       case 'failed':
-        return (label ?? 'Failed', OrionStatusType.danger);
       case 'suspended':
-        return (label ?? 'Suspended', OrionStatusType.danger);
       case 'unpaid':
-        return (label ?? 'Unpaid', OrionStatusType.danger);
+      case 'danger':
+      case 'error':
+        return (label ?? (status != null && status.isNotEmpty ? status : 'Unregistered'), OrionStatusType.danger);
 
       case 'inactive':
-        return (label ?? 'Inactive', OrionStatusType.info);
       case 'draft':
-        return (label ?? 'Draft', OrionStatusType.info);
-
+      case 'info':
       default:
-        return (label ?? status, OrionStatusType.info);
+        return (label ?? (status != null && status.isNotEmpty ? status : 'Inactive'), OrionStatusType.info);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final (displayText, type) = _resolveConfig(status, label);
+    final (displayText, resolvedType) = _resolveConfig(status, label, type);
 
     Color defaultTextColor;
     Color defaultBgColor;
     Color defaultBorderColor;
 
-    switch (type) {
+    switch (resolvedType) {
       case OrionStatusType.success:
         defaultTextColor = OrionColors.statusGreen;
         defaultBgColor = OrionColors.statusGreenBg;
@@ -123,7 +124,7 @@ class OrionStatusPill extends StatelessWidget {
     final effectiveRadius = borderRadius ?? OrionRadius.full;
     final effectiveDotColor = dotColor ?? effectiveTextColor;
 
-    return Container(
+    Widget pill = Container(
       padding: padding ?? const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
         color: effectiveBgColor,
@@ -133,7 +134,13 @@ class OrionStatusPill extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          if (showDot)
+          if (icon != null) ...[
+            IconTheme(
+              data: IconThemeData(color: effectiveTextColor, size: 12),
+              child: icon!,
+            ),
+            const SizedBox(width: 4),
+          ] else if (showDot) ...[
             Container(
               width: 6,
               height: 6,
@@ -143,6 +150,7 @@ class OrionStatusPill extends StatelessWidget {
                 shape: BoxShape.circle,
               ),
             ),
+          ],
           Text(
             displayText,
             style: textStyle ??
@@ -156,5 +164,22 @@ class OrionStatusPill extends StatelessWidget {
         ],
       ),
     );
+
+    if (onTap != null) {
+      pill = InkWell(
+        onTap: onTap,
+        borderRadius: effectiveRadius,
+        child: pill,
+      );
+    }
+
+    if (tooltip != null && tooltip!.isNotEmpty) {
+      pill = Tooltip(
+        message: tooltip!,
+        child: pill,
+      );
+    }
+
+    return pill;
   }
 }

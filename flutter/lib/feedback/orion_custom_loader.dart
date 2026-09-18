@@ -5,25 +5,34 @@ import '../theme/orion_theme.dart';
 class OrionCustomLoader extends StatelessWidget {
   final double size;
   final String? text;
+  final String? label; // Alias for text
+  final String? message; // Alias for text
   final Color color;
   final double strokeWidth;
   final Color? trackColor;
   final TextStyle? textStyle;
+  final bool fullScreen;
 
   const OrionCustomLoader({
     super.key,
     this.size = 20,
     this.text,
+    this.label,
+    this.message,
     this.color = OrionColors.primary,
     this.strokeWidth = 2.5,
     this.trackColor,
     this.textStyle,
+    this.fullScreen = false,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Row(
+    final displayText = label ?? message ?? text;
+
+    Widget loader = Row(
       mainAxisSize: MainAxisSize.min,
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
         SizedBox(
           width: size,
@@ -34,10 +43,10 @@ class OrionCustomLoader extends StatelessWidget {
             backgroundColor: trackColor ?? const Color(0xFFE2E8F0),
           ),
         ),
-        if (text != null) ...[
+        if (displayText != null) ...[
           const SizedBox(width: 10),
           Text(
-            text!,
+            displayText,
             style: textStyle ??
                 const TextStyle(
                   fontSize: 13,
@@ -48,5 +57,15 @@ class OrionCustomLoader extends StatelessWidget {
         ],
       ],
     );
+
+    if (fullScreen) {
+      return Container(
+        color: const Color.fromRGBO(255, 255, 255, 0.85),
+        alignment: Alignment.center,
+        child: loader,
+      );
+    }
+
+    return loader;
   }
 }

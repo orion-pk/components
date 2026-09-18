@@ -7,10 +7,14 @@ class OrionUserDetailsCard extends StatelessWidget {
   final String email;
   final String role;
   final String? phoneNumber;
+  final String? phone; // Alias for phoneNumber
   final String? cnic;
+  final String? avatarUrl;
   final VoidCallback? onEdit;
   final VoidCallback? onDelete;
   final VoidCallback? onCopyInvite;
+  final VoidCallback? onTap;
+  final List<Widget>? customActions;
   final EdgeInsetsGeometry? padding;
 
   // Custom styling overrides (falls back to Orion defaults if null)
@@ -32,10 +36,14 @@ class OrionUserDetailsCard extends StatelessWidget {
     required this.email,
     required this.role,
     this.phoneNumber,
+    this.phone,
     this.cnic,
+    this.avatarUrl,
     this.onEdit,
     this.onDelete,
     this.onCopyInvite,
+    this.onTap,
+    this.customActions,
     this.padding,
     this.backgroundColor,
     this.borderColor,
@@ -52,6 +60,7 @@ class OrionUserDetailsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final effectivePhone = phone ?? phoneNumber;
     final initials = name.trim().isNotEmpty
         ? name.trim().substring(0, name.trim().length >= 2 ? 2 : 1).toUpperCase()
         : 'U';
@@ -63,7 +72,7 @@ class OrionUserDetailsCard extends StatelessWidget {
     final effectiveAvatarBg = avatarColor ?? OrionColors.primary;
     final effectiveAvatarTextColor = avatarTextColor ?? Colors.white;
 
-    return Container(
+    Widget card = Container(
       padding: padding ?? const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: effectiveBg,
@@ -91,16 +100,24 @@ class OrionUserDetailsCard extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: effectiveAvatarBg,
                   shape: BoxShape.circle,
+                  image: avatarUrl != null
+                      ? DecorationImage(
+                          image: NetworkImage(avatarUrl!),
+                          fit: BoxFit.cover,
+                        )
+                      : null,
                 ),
                 alignment: Alignment.center,
-                child: Text(
-                  initials,
-                  style: TextStyle(
-                    color: effectiveAvatarTextColor,
-                    fontWeight: FontWeight.w800,
-                    fontSize: 16,
-                  ),
-                ),
+                child: avatarUrl == null
+                    ? Text(
+                        initials,
+                        style: TextStyle(
+                          color: effectiveAvatarTextColor,
+                          fontWeight: FontWeight.w800,
+                          fontSize: 16,
+                        ),
+                      )
+                    : null,
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -146,10 +163,10 @@ class OrionUserDetailsCard extends StatelessWidget {
                             ),
                           ),
                         ),
-                        if (phoneNumber != null) ...[
+                        if (effectivePhone != null) ...[
                           const Text('•', style: TextStyle(color: OrionColors.textMuted)),
                           Text(
-                            phoneNumber!,
+                            effectivePhone,
                             style: const TextStyle(
                               fontSize: 13,
                               color: OrionColors.textMuted,
@@ -173,11 +190,12 @@ class OrionUserDetailsCard extends StatelessWidget {
               ),
             ],
           ),
-          if (onCopyInvite != null || onEdit != null || onDelete != null) ...[
+          if (customActions != null || onCopyInvite != null || onEdit != null || onDelete != null) ...[
             const SizedBox(height: 14),
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
+                if (customActions != null) ...customActions!,
                 if (onCopyInvite != null)
                   TextButton.icon(
                     onPressed: onCopyInvite,
@@ -227,5 +245,15 @@ class OrionUserDetailsCard extends StatelessWidget {
         ],
       ),
     );
+
+    if (onTap != null) {
+      card = InkWell(
+        onTap: onTap,
+        borderRadius: effectiveRadius,
+        child: card,
+      );
+    }
+
+    return card;
   }
 }

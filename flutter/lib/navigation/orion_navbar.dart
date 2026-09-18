@@ -5,14 +5,23 @@ import 'orion_profile_dropdown.dart';
 
 /// Orion Navbar header mirroring `Navbar.jsx` with full customization support.
 class OrionNavbar extends StatelessWidget implements PreferredSizeWidget {
-  final String brandName;
+  final String? brandName;
+  final String? title; // Alias for brandName
   final Widget? logo;
-  final OrionUser user;
+  final Widget? leading;
+  final OrionUser? user;
+  final String? userName;
+  final String? userEmail;
+  final String? userRole;
   final String currentVersion;
   final bool hasUpdate;
+  final bool showVersionBadge;
+  final bool showProfileDropdown;
   final VoidCallback? onLogout;
   final VoidCallback? onSettings;
+  final VoidCallback? onVersionTap;
   final List<Widget>? rightActions;
+  final List<Widget>? actions; // Alias for rightActions
 
   // Custom styling overrides (falls back to Orion defaults if null)
   final Color? backgroundColor;
@@ -24,18 +33,23 @@ class OrionNavbar extends StatelessWidget implements PreferredSizeWidget {
 
   const OrionNavbar({
     super.key,
-    this.brandName = 'Orion Academy',
+    this.brandName,
+    this.title,
     this.logo,
-    this.user = const OrionUser(
-      name: 'Super Admin',
-      email: 'admin@orion.edu',
-      role: 'Super Admin',
-    ),
-    this.currentVersion = 'v2.4.0',
+    this.leading,
+    this.user,
+    this.userName,
+    this.userEmail,
+    this.userRole,
+    this.currentVersion = 'v1.0.0',
     this.hasUpdate = false,
+    this.showVersionBadge = true,
+    this.showProfileDropdown = true,
     this.onLogout,
     this.onSettings,
+    this.onVersionTap,
     this.rightActions,
+    this.actions,
     this.backgroundColor,
     this.borderColor,
     this.borderWidth,
@@ -53,10 +67,19 @@ class OrionNavbar extends StatelessWidget implements PreferredSizeWidget {
     final effectiveBg = backgroundColor ?? Colors.white;
     final effectiveBorderColor = borderColor ?? OrionColors.borderColor;
     final effectiveBorderWidth = borderWidth ?? 1.5;
+    final effectiveTitle = title ?? brandName ?? 'Orion App';
+    final effectiveActions = actions ?? rightActions;
+
+    final effectiveUser = user ??
+        OrionUser(
+          name: userName ?? 'Super Admin',
+          email: userEmail ?? 'admin@orion.edu',
+          role: userRole ?? 'Super Admin',
+        );
 
     return Container(
       height: effectiveHeight,
-      padding: const EdgeInsets.symmetric(horizontal: 24),
+      padding: const EdgeInsets.symmetric(horizontal: 20),
       decoration: BoxDecoration(
         color: effectiveBg,
         border: Border(bottom: BorderSide(color: effectiveBorderColor, width: effectiveBorderWidth)),
@@ -73,13 +96,18 @@ class OrionNavbar extends StatelessWidget implements PreferredSizeWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Row(
+            mainAxisSize: MainAxisSize.min,
             children: [
+              if (leading != null) ...[
+                leading!,
+                const SizedBox(width: 8),
+              ],
               if (logo != null) ...[
                 logo!,
                 const SizedBox(width: 10),
               ],
               Text(
-                brandName,
+                effectiveTitle,
                 style: brandTextStyle ??
                     const TextStyle(
                       fontSize: 16,
@@ -90,21 +118,26 @@ class OrionNavbar extends StatelessWidget implements PreferredSizeWidget {
             ],
           ),
           Row(
+            mainAxisSize: MainAxisSize.min,
             children: [
-              OrionVersionBadge(
-                currentVersion: currentVersion,
-                hasUpdate: hasUpdate,
-              ),
-              const SizedBox(width: 14),
-              if (rightActions != null) ...[
-                ...rightActions!,
+              if (showVersionBadge) ...[
+                OrionVersionBadge(
+                  currentVersion: currentVersion,
+                  hasUpdate: hasUpdate,
+                  onTap: onVersionTap,
+                ),
                 const SizedBox(width: 14),
               ],
-              OrionProfileDropdown(
-                user: user,
-                onLogout: onLogout,
-                onSettings: onSettings,
-              ),
+              if (effectiveActions != null) ...[
+                ...effectiveActions,
+                const SizedBox(width: 14),
+              ],
+              if (showProfileDropdown)
+                OrionProfileDropdown(
+                  user: effectiveUser,
+                  onLogout: onLogout,
+                  onSettings: onSettings,
+                ),
             ],
           ),
         ],

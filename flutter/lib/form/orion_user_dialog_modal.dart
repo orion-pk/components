@@ -20,15 +20,40 @@ class OrionUserData {
     required this.email,
     this.password,
   });
+
+  factory OrionUserData.fromMap(Map<String, dynamic> map) {
+    return OrionUserData(
+      role: map['role']?.toString() ?? 'Teacher',
+      fullName: (map['fullName'] ?? map['name'] ?? '').toString(),
+      cnic: (map['cnic'] ?? '').toString(),
+      contact: (map['contact'] ?? map['phoneNumber'] ?? map['phone'] ?? '').toString(),
+      email: (map['email'] ?? '').toString(),
+      password: map['password']?.toString(),
+    );
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'role': role,
+      'fullName': fullName,
+      'name': fullName,
+      'cnic': cnic,
+      'contact': contact,
+      'phoneNumber': contact,
+      'phone': contact,
+      'email': email,
+      if (password != null) 'password': password,
+    };
+  }
 }
 
-/// Orion User Dialog Modal mirroring `UserDialogModal.jsx`
+/// Orion User Dialog Modal mirroring `UserDialogModal.jsx` with full customization support.
 class OrionUserDialogModal extends StatefulWidget {
   final OrionUserDialogMode mode;
   final OrionUserData? initialData;
   final List<String> roles;
-  final Future<void> Function(OrionUserData data) onSubmit;
-  final VoidCallback onClose;
+  final dynamic Function(OrionUserData data) onSubmit;
+  final VoidCallback? onClose;
   final bool loading;
   final String? error;
 
@@ -38,7 +63,7 @@ class OrionUserDialogModal extends StatefulWidget {
     this.initialData,
     this.roles = const ['Teacher', 'Student', 'Parent'],
     required this.onSubmit,
-    required this.onClose,
+    this.onClose,
     this.loading = false,
     this.error,
   });
@@ -48,10 +73,12 @@ class OrionUserDialogModal extends StatefulWidget {
     OrionUserDialogMode mode = OrionUserDialogMode.add,
     OrionUserData? initialData,
     List<String> roles = const ['Teacher', 'Student', 'Parent'],
-    required Future<void> Function(OrionUserData data) onSubmit,
+    required dynamic Function(OrionUserData data) onSubmit,
+    bool barrierDismissible = true,
   }) {
     return showDialog<void>(
       context: context,
+      barrierDismissible: barrierDismissible,
       barrierColor: const Color.fromRGBO(15, 23, 42, 0.5),
       builder: (ctx) => OrionUserDialogModal(
         mode: mode,
@@ -142,6 +169,7 @@ class _OrionUserDialogModalState extends State<OrionUserDialogModal> {
   @override
   Widget build(BuildContext context) {
     final isAdd = widget.mode == OrionUserDialogMode.add;
+    final handleClose = widget.onClose ?? () => Navigator.of(context, rootNavigator: true).pop();
 
     return Dialog(
       backgroundColor: Colors.white,
@@ -185,7 +213,7 @@ class _OrionUserDialogModalState extends State<OrionUserDialogModal> {
                   ),
                   IconButton(
                     icon: const Icon(Icons.close, size: 18, color: OrionColors.textSubtle),
-                    onPressed: widget.onClose,
+                    onPressed: handleClose,
                   ),
                 ],
               ),
@@ -304,13 +332,13 @@ class _OrionUserDialogModalState extends State<OrionUserDialogModal> {
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   OrionButton(
-                    label: 'Cancel',
+                    text: 'Cancel',
                     variant: OrionButtonVariant.secondary,
-                    onPressed: widget.loading ? null : widget.onClose,
+                    onPressed: widget.loading ? null : handleClose,
                   ),
                   const SizedBox(width: 8),
                   OrionButton(
-                    label: isAdd ? 'Save & Create' : 'Save Changes',
+                    text: isAdd ? 'Save & Create' : 'Save Changes',
                     variant: OrionButtonVariant.primary,
                     isLoading: widget.loading,
                     iconLeft: const Icon(Icons.save_outlined, size: 15),
