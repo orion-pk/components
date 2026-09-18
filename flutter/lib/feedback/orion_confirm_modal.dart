@@ -7,7 +7,9 @@ enum OrionConfirmVariant { danger, primary }
 class OrionConfirmDialog extends StatelessWidget {
   final String title;
   final String? subtitle;
-  final String message;
+  final String? message;
+  final String? description; // Alias for message
+  final String? content; // Alias for message
   final String confirmText;
   final String cancelText;
   final OrionConfirmVariant confirmVariant;
@@ -28,7 +30,9 @@ class OrionConfirmDialog extends StatelessWidget {
     super.key,
     this.title = 'Confirm Action',
     this.subtitle = 'Permanent Action',
-    required this.message,
+    this.message,
+    this.description,
+    this.content,
     this.confirmText = 'Confirm',
     this.cancelText = 'Cancel',
     this.confirmVariant = OrionConfirmVariant.danger,
@@ -48,7 +52,9 @@ class OrionConfirmDialog extends StatelessWidget {
     BuildContext context, {
     String title = 'Confirm Action',
     String? subtitle = 'Permanent Action',
-    required String message,
+    String? message,
+    String? description,
+    String? content,
     String confirmText = 'Confirm',
     String cancelText = 'Cancel',
     OrionConfirmVariant confirmVariant = OrionConfirmVariant.danger,
@@ -65,7 +71,7 @@ class OrionConfirmDialog extends StatelessWidget {
       builder: (ctx) => OrionConfirmDialog(
         title: title,
         subtitle: subtitle,
-        message: message,
+        message: message ?? description ?? content ?? '',
         confirmText: confirmText,
         cancelText: cancelText,
         confirmVariant: confirmVariant,
@@ -92,6 +98,7 @@ class OrionConfirmDialog extends StatelessWidget {
     final effectiveBorderColor = borderColor ?? OrionColors.borderColor;
     final effectiveBorderWidth = borderWidth ?? 1.5;
     final effectiveRadius = borderRadius ?? OrionRadius.lg;
+    final bodyText = message ?? description ?? content ?? '';
 
     return Dialog(
       backgroundColor: effectiveBg,
@@ -160,7 +167,7 @@ class OrionConfirmDialog extends StatelessWidget {
               const SizedBox(height: 16),
               // Body
               Text(
-                message,
+                bodyText,
                 style: messageStyle ??
                     const TextStyle(
                       fontSize: 13.5,
@@ -225,3 +232,6 @@ class OrionConfirmDialog extends StatelessWidget {
     );
   }
 }
+
+/// Alias for OrionConfirmDialog
+typedef OrionConfirmModal = OrionConfirmDialog;

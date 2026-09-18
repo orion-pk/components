@@ -5,8 +5,12 @@ import '../theme/orion_theme.dart';
 class OrionSearchBar extends StatefulWidget {
   final String value;
   final ValueChanged<String>? onChange;
+  final ValueChanged<String>? onChanged; // Alias for onChange
+  final ValueChanged<String>? onSubmitted;
   final VoidCallback? onClear;
   final String placeholder;
+  final String? hintText; // Alias for placeholder
+  final TextEditingController? controller;
   final bool showFilterToggle;
   final VoidCallback? onFilterToggle;
   final bool filterActive;
@@ -25,8 +29,12 @@ class OrionSearchBar extends StatefulWidget {
     super.key,
     this.value = '',
     this.onChange,
+    this.onChanged,
+    this.onSubmitted,
     this.onClear,
     this.placeholder = 'Search by name, role, email, phone or CNIC...',
+    this.hintText,
+    this.controller,
     this.showFilterToggle = false,
     this.onFilterToggle,
     this.filterActive = false,
@@ -45,26 +53,39 @@ class OrionSearchBar extends StatefulWidget {
 }
 
 class _OrionSearchBarState extends State<OrionSearchBar> {
-  late TextEditingController _controller;
+  late TextEditingController _effectiveController;
+  bool _createdInternally = false;
 
   @override
   void initState() {
     super.initState();
-    _controller = TextEditingController(text: widget.value);
+    if (widget.controller != null) {
+      _effectiveController = widget.controller!;
+    } else {
+      _effectiveController = TextEditingController(text: widget.value);
+      _createdInternally = true;
+    }
   }
 
   @override
   void didUpdateWidget(covariant OrionSearchBar oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.value != widget.value && _controller.text != widget.value) {
-      _controller.text = widget.value;
+    if (_createdInternally && oldWidget.value != widget.value && _effectiveController.text != widget.value) {
+      _effectiveController.text = widget.value;
     }
   }
 
   @override
   void dispose() {
-    _controller.dispose();
+    if (_createdInternally) {
+      _effectiveController.dispose();
+    }
     super.dispose();
+  }
+
+  void _triggerChange(String val) {
+    if (widget.onChange != null) widget.onChange!(val);
+    if (widget.onChanged != null) widget.onChanged!(val);
   }
 
   @override
@@ -75,6 +96,7 @@ class _OrionSearchBarState extends State<OrionSearchBar> {
     final effectiveRadius = widget.borderRadius ?? OrionRadius.md;
     final effectiveHeight = widget.height ?? 38.0;
     final effectiveIconColor = widget.iconColor ?? OrionColors.textMuted;
+    final effectiveHint = widget.hintText ?? widget.placeholder;
 
     return Container(
       height: effectiveHeight,
@@ -93,15 +115,16 @@ class _OrionSearchBarState extends State<OrionSearchBar> {
           ),
           Expanded(
             child: TextField(
-              controller: _controller,
-              onChanged: widget.onChange,
+              controller: _effectiveController,
+              onChanged: _triggerChange,
+              onSubmitted: widget.onSubmitted,
               style: widget.textStyle ??
                   const TextStyle(
                     fontSize: 13.5,
                     color: OrionColors.textMain,
                   ),
               decoration: InputDecoration(
-                hintText: widget.placeholder,
+                hintText: effectiveHint,
                 hintStyle: widget.hintStyle ??
                     const TextStyle(
                       fontSize: 13.5,
@@ -113,17 +136,17 @@ class _OrionSearchBarState extends State<OrionSearchBar> {
               ),
             ),
           ),
-          if (widget.value.isNotEmpty)
+          if (_effectiveController.text.isNotEmpty || widget.value.isNotEmpty)
             IconButton(
               icon: const Icon(Icons.close, size: 16, color: OrionColors.textSubtle),
               padding: const EdgeInsets.symmetric(horizontal: 4),
               constraints: const BoxConstraints(),
               onPressed: () {
-                _controller.clear();
+                _effectiveController.clear();
                 if (widget.onClear != null) {
                   widget.onClear!();
-                } else if (widget.onChange != null) {
-                  widget.onChange!('');
+                } else {
+                  _triggerChange('');
                 }
               },
             ),

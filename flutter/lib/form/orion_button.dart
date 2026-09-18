@@ -19,6 +19,7 @@ enum OrionButtonSize {
 /// Orion Button widget mirroring `Button.jsx` with full customization support.
 class OrionButton extends StatelessWidget {
   final String? label;
+  final String? text; // Alias for label
   final Widget? child;
   final OrionButtonVariant variant;
   final OrionButtonSize size;
@@ -26,6 +27,7 @@ class OrionButton extends StatelessWidget {
   final bool disabled;
   final Widget? iconLeft;
   final Widget? iconRight;
+  final IconData? icon; // Shorthand for left icon
   final VoidCallback? onPressed;
   final double? width;
 
@@ -41,6 +43,7 @@ class OrionButton extends StatelessWidget {
   const OrionButton({
     super.key,
     this.label,
+    this.text,
     this.child,
     this.variant = OrionButtonVariant.primary,
     this.size = OrionButtonSize.md,
@@ -48,6 +51,7 @@ class OrionButton extends StatelessWidget {
     this.disabled = false,
     this.iconLeft,
     this.iconRight,
+    this.icon,
     this.onPressed,
     this.width,
     this.backgroundColor,
@@ -62,6 +66,7 @@ class OrionButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isActuallyDisabled = disabled || isLoading || onPressed == null;
+    final buttonText = label ?? text;
 
     double defaultHeight;
     double defaultFontSize;
@@ -132,6 +137,8 @@ class OrionButton extends StatelessWidget {
         ? Colors.white
         : OrionColors.primary;
 
+    final effectiveLeftIcon = iconLeft ?? (icon != null ? Icon(icon) : null);
+
     Widget content = Row(
       mainAxisSize: MainAxisSize.min,
       mainAxisAlignment: MainAxisAlignment.center,
@@ -139,16 +146,16 @@ class OrionButton extends StatelessWidget {
         if (isLoading) ...[
           OrionCustomLoader(size: loaderSize, color: loaderColor),
           const SizedBox(width: 6),
-        ] else if (iconLeft != null) ...[
+        ] else if (effectiveLeftIcon != null) ...[
           IconTheme(
             data: IconThemeData(color: effectiveTextColor, size: defaultFontSize + 2),
-            child: iconLeft!,
+            child: effectiveLeftIcon,
           ),
           const SizedBox(width: 6),
         ],
         child ??
             Text(
-              label ?? '',
+              buttonText ?? '',
               style: textStyle ??
                   TextStyle(
                     color: effectiveTextColor,
